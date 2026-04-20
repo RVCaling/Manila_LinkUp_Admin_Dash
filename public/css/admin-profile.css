@@ -1,0 +1,32 @@
+.main-content {
+    margin-left: 280px; /* Aligns with your sidebar width */
+}
+
+.card {
+    transition: transform 0.2s ease;
+}
+
+.form-control:focus {
+    background-color: #fff !important;
+    border: 1px solid #1B3E9C !important;
+    box-shadow: 0 0 0 0.25rem rgba(27, 62, 156, 0.1);
+}
+
+.btn-primary:hover {
+    background-color: #153280 !important;
+}
+
+/* Sidebar Pill Hover Effect */
+.admin-pill-card {
+    transition: all 0.2s ease;
+}
+
+.admin-pill-card:hover {
+    background-color: #f8f9fa !important;
+    transform: translateY(-2px);
+}
+
+.pill-active {
+    border: 2px solid #ffffff;
+    background-color: #eef2ff !important;
+}

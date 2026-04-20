@@ -1,0 +1,103 @@
+body {
+    background-color: #f0f2f9; /* Subtle blue-grey tint background */
+    font-family: 'Inter', sans-serif;
+}
+
+.main-content {
+    margin-left: 280px; /* Aligns with sidebar width */
+    min-height: 100vh;
+}
+
+.stats-card {
+    border: 1px solid rgba(27, 62, 156, 0.05) !important;
+}
+
+.badge {
+    font-weight: 600;
+    font-size: 0.7rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+.extra-small {
+    font-size: 0.65rem;
+}
+
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+
+.form-select-sm {
+    font-size: 0.75rem;
+    border-color: #e0e0e0;
+}
+
+/* Matching the chart container in your reference */
+canvas {
+    width: 100% !important;
+}
+
+/* Dashboard Background and Layout */
+.main-content {
+    margin-left: 280px; /* Aligns with sidebar width */
+    background-color: #F8F9FE;
+    min-height: 100vh;
+}
+
+/* Rounded Cards */
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+
+/* Stat Cards hover effect */
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+}
+
+/* Custom Table Styles */
+.custom-table th {
+    font-weight: 600;
+    border-bottom-width: 1px;
+}
+
+.custom-table td {
+    padding: 12px 8px;
+}
+
+/* Notifications Bell Styling */
+.notification-wrapper {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.notification-wrapper:hover {
+    opacity: 0.7;
+}
+
+/* Badge colors */
+.bg-primary-subtle { background-color: #E8EFFF !important; }
+.bg-success-subtle { background-color: #D1FAE5 !important; }
+.bg-warning-subtle { background-color: #FEF3C7 !important; }
+
+.chart-container {
+            position: relative;
+            height: 300px; 
+            width: 100%;
+        }
+        .main-content {
+            background-color: #F8F9FE;
+            min-height: 100vh;
+        }
+        .stat-card {
+            border: none;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }

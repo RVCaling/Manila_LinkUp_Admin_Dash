@@ -1,0 +1,100 @@
+/* ... Keep existing styles ... */
+
+.dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.bg-success-subtle {
+    background-color: #e8f5e9 !important;
+}
+
+.modal-header .btn-close {
+    background-color: #f8f9fa;
+    border-radius: 50%;
+    opacity: 1;
+    padding: 10px;
+    font-size: 10px;
+}
+
+.extracted-metadata span {
+    letter-spacing: 0.3px;
+}
+
+textarea.form-control::placeholder {
+    font-size: 0.85rem;
+    color: #adb5bd;
+}
+
+.modal-content {
+    animation: modalScale 0.2s ease-out;
+}
+
+@keyframes modalScale {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Styling specifically for the Verification Workflow */
+.custom-verification-table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #edf2f9;
+    padding: 15px;
+}
+
+.custom-verification-table tbody td {
+    padding: 15px;
+    border-bottom: 1px solid #edf2f9;
+}
+
+.dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.bg-success-subtle {
+    background-color: #e8f5e9 !important;
+}
+
+.modal-header .btn-close {
+    background-color: #f8f9fa;
+    border-radius: 50%;
+    opacity: 1;
+    padding: 10px;
+    font-size: 10px;
+}
+
+.extracted-metadata span {
+    letter-spacing: 0.3px;
+}
+
+textarea.form-control::placeholder {
+    font-size: 0.85rem;
+    color: #adb5bd;
+}
+
+/* Animations */
+.modal-content {
+    animation: modalScale 0.2s ease-out;
+}
+
+@keyframes modalScale {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+#js-success-alert {
+    background-color: #d1e7dd; 
+    color: #0f5132;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+}

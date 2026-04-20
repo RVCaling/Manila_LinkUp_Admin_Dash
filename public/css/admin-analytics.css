@@ -1,0 +1,35 @@
+/* Specific Analytics Styling */
+.btn-white {
+    background-color: #ffffff;
+    color: #444;
+}
+
+.btn-white:hover {
+    background-color: #f8f9fa;
+}
+
+.chart-container {
+    width: 100%;
+}
+
+/* Updated Metric Card Borders */
+.border-indigo { border-color: #4F46E5 !important; }
+.border-teal { border-color: #0D9488 !important; }
+.border-coral { border-color: #FB7185 !important; }
+
+#growthChart {
+    max-height: 350px !important;
+}
+
+#district-legend .small {
+    font-size: 0.85rem;
+}
+
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
+}
+
+/* Material Symbol adjustments */
+.material-symbols-outlined {
+    vertical-align: middle;
+}

@@ -1,0 +1,62 @@
+body.login-body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 15px;
+}
+
+.login-card {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid rgba(27, 62, 156, 0.1);
+}
+
+.logo-wrapper {
+    background: #f0f4ff;
+    width: 65px;
+    height: 65px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    margin: 0 auto;
+    overflow: hidden; /* Ensures the logo stays inside the rounded corners */
+}
+
+/* NEW LOGO IMAGE STYLING */
+.login-logo {
+    width: 70%;      /* Adjust this percentage to make your logo look right */
+    height: auto;
+    max-height: 70%;
+    object-fit: contain;
+}
+
+.form-control:focus {
+    border-color: #1B3E9C;
+    box-shadow: 0 0 0 0.25rem rgba(27, 62, 156, 0.1);
+}
+
+.input-group-text {
+    color: #1B3E9C;
+}
+
+.btn-primary:hover {
+    background-color: #153280 !important;
+    transform: translateY(-1px);
+    transition: all 0.2s;
+}
+
+/* Responsiveness */
+@media (max-width: 576px) {
+    .login-card {
+        padding: 2rem !important;
+    }
+}
