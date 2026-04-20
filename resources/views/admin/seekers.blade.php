@@ -27,27 +27,21 @@
             </div>
         </div>
 
-        <div id="js-success-alert" class="alert alert-success border-0 shadow-sm rounded-3 mb-4 d-none" role="alert" style="background-color: #d1e7dd; color: #0f5132;">
+        <div id="js-success-alert" class="alert alert-success border-0 shadow-sm rounded-3 mb-4 d-none" role="alert">
             <span id="alert-message">Action processed successfully.</span>
         </div>
-
-        @if(session('success'))
-            <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4" role="alert" style="background-color: #d1e7dd; color: #0f5132;">
-                {{ session('success') }}
-            </div>
-        @endif
 
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
             <div class="card-body p-4">
                 <div class="d-flex mb-4">
                     <div class="input-group w-auto">
-                        <input type="text" class="form-control border-light bg-light rounded-start-pill px-4" placeholder="Search seeker..." style="min-width: 300px;">
+                        <input type="text" id="seekerSearchInput" class="form-control border-light bg-light rounded-start-pill px-4" placeholder="Search seeker..." style="min-width: 300px;">
                         <button class="btn btn-primary rounded-end-pill px-4" style="background-color: #1B3E9C; border: none;">Search</button>
                     </div>
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle custom-verification-table">
+                    <table class="table table-hover align-middle custom-verification-table" id="seekerTable">
                         <thead>
                             <tr>
                                 <th class="text-muted small fw-bold">#</th>
@@ -80,30 +74,8 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr>
-                                <td class="fw-bold">2</td>
-                                <td><span class="badge bg-light text-dark border">MLU-2026-0012</span></td>
-                                <td class="fw-bold seeker-name">Juan Dela Cruz</td>
-                                <td class="text-muted">juan.dc@gmail.com</td>
-                                <td><span class="text-primary fw-bold small"><span class="material-symbols-outlined align-middle fs-6">description</span> NBI Clearance</span></td>
-                                <td><span class="badge rounded-pill text-primary" style="background-color: #e7f0ff;">Carpentry</span></td>
-                                <td>Binondo, Manila</td>
-                                <td class="text-center">
-                                    <button class="btn btn-dark btn-sm rounded-3 px-3" data-bs-toggle="modal" data-bs-target="#verificationModal"><span class="material-symbols-outlined fs-6 align-middle">visibility</span> View</button>
-                                </td>
-                                <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <button class="btn btn-success btn-sm rounded-3 px-3 action-approve-btn">Approve</button>
-                                        <button class="btn btn-danger btn-sm rounded-3 px-3 action-reject-btn">Reject</button>
-                                    </div>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
-                </div>
-                
-                <div class="d-flex justify-content-center mt-4">
-                    <p class="text-muted small">Showing 1 to 2 of 2 pending seekers</p>
                 </div>
             </div>
         </div>
@@ -137,10 +109,6 @@
                                     <span class="small fw-bold text-success"><span class="material-symbols-outlined fs-6 align-middle me-1">check_circle</span> ID Number Match</span>
                                     <span class="small text-success fw-bold">98%</span>
                                 </div>
-                                <div class="check-item d-flex justify-content-between align-items-center bg-success-subtle p-2 rounded-3 mb-2 px-3">
-                                    <span class="small fw-bold text-success"><span class="material-symbols-outlined fs-6 align-middle me-1">check_circle</span> Expiry Date Valid</span>
-                                    <span class="small text-success fw-bold">06/2018</span>
-                                </div>
                             </div>
 
                             <div class="extracted-metadata">
@@ -149,15 +117,6 @@
                                     <span class="small text-muted">FULL NAME</span>
                                     <span class="small fw-bold">Gojo Satoru</span>
                                 </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="small text-muted">BIRTHDAY</span>
-                                    <span class="small fw-bold">05-16-1997</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-3">
-                                    <span class="small text-muted">ID NUMBER</span>
-                                    <span class="small fw-bold">012700</span>
-                                </div>
-
                                 <div class="admin-notes">
                                     <label class="small text-muted fw-bold mb-2">VERIFICATION NOTES</label>
                                     <textarea class="form-control bg-light border-0 small" rows="3" placeholder="Add administrative notes here..."></textarea>
@@ -178,8 +137,7 @@
         <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-body p-4 text-center">
-                    <div id="confirm-icon-container" class="mb-3">
-                        </div>
+                    <div id="confirm-icon-container" class="mb-3"></div>
                     <h5 class="fw-bold" id="confirm-title">Are you sure?</h5>
                     <p class="text-muted small" id="confirm-text">Do you want to process this seeker?</p>
                     <div class="d-grid gap-2">
@@ -195,12 +153,34 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // NEW: URL Redirection Logic
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('search');
+            
+            if (searchQuery) {
+                const searchInput = document.getElementById('seekerSearchInput');
+                searchInput.value = searchQuery;
+                filterTable(searchQuery);
+            }
+
+            function filterTable(query) {
+                const rows = document.querySelectorAll('#seekerTable tbody tr');
+                rows.forEach(row => {
+                    const name = row.querySelector('.seeker-name').innerText.toLowerCase();
+                    if (name.includes(query.toLowerCase())) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            }
+
+            // Existing logic below
             let selectedSeeker = "";
             let currentAction = "";
             const confirmModal = new bootstrap.Modal(document.getElementById('confirmActionModal'));
             const viewModal = new bootstrap.Modal(document.getElementById('verificationModal'));
 
-            // Function to trigger confirmation
             function triggerConfirm(name, action) {
                 selectedSeeker = name;
                 currentAction = action;
@@ -220,17 +200,11 @@
                     text.innerText = `Are you sure you want to reject ${name}?`;
                     iconBox.innerHTML = '<span class="material-symbols-outlined text-danger fs-1">cancel</span>';
                     confirmBtn.className = "btn btn-danger rounded-3";
-                } else {
-                    title.innerText = "Request Info";
-                    text.innerText = `Send clarification request to ${name}?`;
-                    iconBox.innerHTML = '<span class="material-symbols-outlined text-warning fs-1">contact_support</span>';
-                    confirmBtn.className = "btn btn-warning rounded-3";
                 }
 
                 confirmModal.show();
             }
 
-            // Table Action Buttons
             document.querySelectorAll('.action-approve-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const name = e.target.closest('tr').querySelector('.seeker-name').innerText;
@@ -245,32 +219,11 @@
                 });
             });
 
-            // Modal Action Buttons
-            document.getElementById('btn-verify-seeker').addEventListener('click', () => {
-                const name = document.getElementById('modalSeekerName').innerText;
-                viewModal.hide();
-                triggerConfirm(name, 'Verify');
-            });
-
-            document.getElementById('btn-request-clarification').addEventListener('click', () => {
-                const name = document.getElementById('modalSeekerName').innerText;
-                viewModal.hide();
-                triggerConfirm(name, 'Clarify');
-            });
-
-            // Final Confirmation Logic (Where Firebase Integration happens)
             document.getElementById('btn-confirm-submit').addEventListener('click', function() {
-                // Here you would add your Firebase Code (e.g., db.collection('seekers').doc(id).update({status: 'approved'}))
-                
                 confirmModal.hide();
-                
-                // Show success alert
                 const alert = document.getElementById('js-success-alert');
-                const msg = document.getElementById('alert-message');
                 alert.classList.remove('d-none');
-                msg.innerText = `Successfully processed ${currentAction} for ${selectedSeeker}. Notification sent.`;
-                
-                // Auto-hide alert after 3 seconds
+                document.getElementById('alert-message').innerText = `Successfully processed ${currentAction} for ${selectedSeeker}.`;
                 setTimeout(() => { alert.classList.add('d-none'); }, 4000);
             });
         });

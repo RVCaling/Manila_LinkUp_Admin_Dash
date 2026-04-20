@@ -35,13 +35,13 @@
             <div class="card-body p-4">
                 <div class="d-flex mb-4">
                     <div class="input-group w-auto">
-                        <input type="text" class="form-control border-light bg-light rounded-start-pill px-4" placeholder="Search company name..." style="min-width: 300px;">
+                        <input type="text" id="employerSearchInput" class="form-control border-light bg-light rounded-start-pill px-4" placeholder="Search company name..." style="min-width: 300px;">
                         <button class="btn btn-primary rounded-end-pill px-4" style="background-color: #1B3E9C; border: none;">Search</button>
                     </div>
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle custom-verification-table">
+                    <table class="table table-hover align-middle custom-verification-table" id="employerTable">
                         <thead>
                             <tr>
                                 <th class="text-muted small fw-bold">#</th>
@@ -147,6 +147,29 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // NEW: URL Redirection Logic
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('search');
+            
+            if (searchQuery) {
+                const searchInput = document.getElementById('employerSearchInput');
+                searchInput.value = searchQuery;
+                filterTable(searchQuery);
+            }
+
+            function filterTable(query) {
+                const rows = document.querySelectorAll('#employerTable tbody tr');
+                rows.forEach(row => {
+                    const name = row.querySelector('.entity-name').innerText.toLowerCase();
+                    if (name.includes(query.toLowerCase())) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            }
+
+            // Existing logic below
             let selectedName = "";
             let currentAction = "";
             const confirmModal = new bootstrap.Modal(document.getElementById('confirmActionModal'));
