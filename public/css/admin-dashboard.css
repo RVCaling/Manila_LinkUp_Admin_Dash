@@ -1,58 +1,24 @@
+/* General Layout */
 body {
-    background-color: #f0f2f9; /* Subtle blue-grey tint background */
+    background-color: #f0f2f9; 
     font-family: 'Inter', sans-serif;
 }
 
 .main-content {
-    margin-left: 280px; /* Aligns with sidebar width */
-    min-height: 100vh;
-}
-
-.stats-card {
-    border: 1px solid rgba(27, 62, 156, 0.05) !important;
-}
-
-.badge {
-    font-weight: 600;
-    font-size: 0.7rem;
-    padding: 5px 10px;
-    border-radius: 20px;
-}
-
-.extra-small {
-    font-size: 0.65rem;
-}
-
-.rounded-4 {
-    border-radius: 1rem !important;
-}
-
-.form-select-sm {
-    font-size: 0.75rem;
-    border-color: #e0e0e0;
-}
-
-/* Matching the chart container in your reference */
-canvas {
-    width: 100% !important;
-}
-
-/* Dashboard Background and Layout */
-.main-content {
-    margin-left: 280px; /* Aligns with sidebar width */
+    margin-left: 280px; 
     background-color: #F8F9FE;
     min-height: 100vh;
 }
 
-/* Rounded Cards */
-.rounded-4 {
-    border-radius: 1rem !important;
-}
+/* UI Elements */
+.rounded-4 { border-radius: 1rem !important; }
+.extra-small { font-size: 0.65rem; }
 
-/* Stat Cards hover effect */
+/* Stat Cards */
 .stat-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: none;
+    background-color: #fff;
 }
 
 .stat-card:hover {
@@ -60,44 +26,60 @@ canvas {
     box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
 }
 
-/* Custom Table Styles */
-.custom-table th {
+/* Badges & Colors */
+.badge {
     font-weight: 600;
-    border-bottom-width: 1px;
+    font-size: 0.7rem;
+    padding: 5px 10px;
+    border-radius: 20px;
 }
 
-.custom-table td {
-    padding: 12px 8px;
-}
+.bg-primary-subtle { background-color: #E8EFFF !important; }
+.bg-success-subtle { background-color: #D1FAE5 !important; }
+.bg-warning-subtle { background-color: #FEF3C7 !important; }
+.bg-danger-subtle { background-color: #FEE2E2 !important; }
 
-/* Notifications Bell Styling */
+/* Notification Dropdown Customization */
 .notification-wrapper {
     cursor: pointer;
     transition: opacity 0.2s;
 }
 
-.notification-wrapper:hover {
-    opacity: 0.7;
+.notification-wrapper:hover { opacity: 0.7; }
+
+.notification-item {
+    transition: background-color 0.2s;
+    cursor: pointer;
+    border-bottom: 1px solid #f8f9fa;
 }
 
-/* Badge colors */
-.bg-primary-subtle { background-color: #E8EFFF !important; }
-.bg-success-subtle { background-color: #D1FAE5 !important; }
-.bg-warning-subtle { background-color: #FEF3C7 !important; }
+.notification-item:hover { background-color: #f8f9fe; }
 
+.notification-item.unread {
+    background-color: #f0f4ff; /* Light blue tint for unread */
+}
+
+/* Charts & Modals */
 .chart-container {
-            position: relative;
-            height: 300px; 
-            width: 100%;
-        }
-        .main-content {
-            background-color: #F8F9FE;
-            min-height: 100vh;
-        }
-        .stat-card {
-            border: none;
-            transition: transform 0.2s;
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
+    position: relative;
+    height: 400px; 
+    width: 100%;
+}
+
+.modal-content {
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+}
+
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar for Notifications */
+#notification-list::-webkit-scrollbar {
+    width: 4px;
+}
+#notification-list::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+    border-radius: 10px;
+}
