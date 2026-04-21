@@ -41,7 +41,7 @@
                         <div id="notification-list" style="max-height: 350px; overflow-y: auto;">
                             </div>
                         <li class="p-2 text-center border-top">
-                            <a href="#" class="text-muted extra-small text-decoration-none">View all alerts</a>
+                            <a href="#" class="text-muted extra-small text-decoration-none" data-bs-toggle="modal" data-bs-target="#alertsModal">View all alerts</a>
                         </li>
                     </ul>
                 </div>
@@ -148,6 +148,24 @@
         </div>
     </div>
 
+    <div class="modal fade" id="alertsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" style="color: #1B3E9C;">System Notifications</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="p-3 border-bottom d-flex justify-content-end">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 extra-small" onclick="clearNotifications()">Mark all as read</button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="modal-alerts-list">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="activityModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 rounded-4 shadow">
@@ -218,13 +236,14 @@
             // 2. Notification System Logic
             window.renderNotifications = function() {
                 const list = document.getElementById('notification-list');
+                const modalList = document.getElementById('modal-alerts-list');
                 const countBadge = document.getElementById('notif-count');
                 const unreadCount = dummyData.notifications.filter(n => n.unread).length;
                 
                 countBadge.innerText = unreadCount;
                 countBadge.style.display = unreadCount > 0 ? 'block' : 'none';
 
-                list.innerHTML = dummyData.notifications.map(n => `
+                const notificationHTML = dummyData.notifications.map(n => `
                     <li class="notification-item p-3 ${n.unread ? 'unread' : ''}" onclick="markAsRead(${n.id})">
                         <div class="d-flex align-items-start">
                             <div class="flex-grow-1">
@@ -236,6 +255,9 @@
                         </div>
                     </li>
                 `).join('');
+
+                list.innerHTML = notificationHTML;
+                modalList.innerHTML = notificationHTML; // Populate the Modal list as well
             };
 
             window.markAsRead = function(id) {

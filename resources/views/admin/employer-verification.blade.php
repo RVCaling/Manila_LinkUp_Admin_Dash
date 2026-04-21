@@ -21,11 +21,28 @@
                 <h1 class="fw-bold mb-0" style="color: #1B3E9C;">Employer Verification</h1>
                 <p class="text-muted small">Review business permits and verify company accounts.</p>
             </div>
-            <div class="notification-wrapper position-relative">
-                <span class="material-symbols-outlined fs-2 text-muted" style="cursor: pointer;">notifications</span>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger border border-light" style="padding: 5px; font-size: 10px;">5</span>
+            <div class="d-flex align-items-center">
+                <div class="dropdown">
+                    <div class="notification-wrapper position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="material-symbols-outlined fs-2 text-muted" style="cursor: pointer;">notifications</span>
+                        <span id="notif-count" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger border border-light" style="padding: 5px; font-size: 10px;">0</span>
+                    </div>
+                    
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-0 mt-2" aria-labelledby="notificationDropdown" style="width: 320px; overflow: hidden;">
+                        <li class="p-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="fw-bold mb-0">Notifications</h6>
+                                <button class="btn btn-sm text-primary p-0 extra-small" onclick="clearNotifications()">Mark all as read</button>
+                            </div>
+                        </li>
+                        <div id="notification-list" style="max-height: 350px; overflow-y: auto;"></div>
+                        <li class="p-2 text-center border-top">
+                            <a href="#" class="text-muted extra-small text-decoration-none" data-bs-toggle="modal" data-bs-target="#alertsModal">View all alerts</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
+            </div>
 
         <div id="js-success-alert" class="alert alert-success border-0 shadow-sm rounded-3 mb-4 d-none" role="alert">
             <span id="alert-message">Action processed successfully.</span>
@@ -74,6 +91,23 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="alertsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" style="color: #1B3E9C;">System Notifications</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="p-3 border-bottom d-flex justify-content-end">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 extra-small" onclick="clearNotifications()">Mark all as read</button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="modal-alerts-list"></div>
                 </div>
             </div>
         </div>
@@ -147,29 +181,91 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // NEW: URL Redirection Logic
-            const urlParams = new URLSearchParams(window.location.search);
-            const searchQuery = urlParams.get('search');
-            
-            if (searchQuery) {
-                const searchInput = document.getElementById('employerSearchInput');
-                searchInput.value = searchQuery;
-                filterTable(searchQuery);
-            }
+            // 1. Notification System Logic (Same as User Database)
+            const dummyNotifs = {
+                notifications: [
+                    { id: 1, title: 'New Seeker Registration', body: 'Maria Santos uploaded ID for verification.', time: '2 mins ago', unread: true },
+                    { id: 2, title: 'System Alert', body: 'Server load reached 85% in Manila node.', time: '1 hour ago', unread: true },
+                    { id: 3, title: 'New Employer', body: 'Logistics Co registered in Malate.', time: '3 hours ago', unread: true },
+                    { id: 4, title: 'Verification Approved', body: 'Intramuros Tour is now active.', time: 'Yesterday', unread: false }
+                ]
+            };
 
+            window.renderNotifications = function() {
+                const list = document.getElementById('notification-list');
+                const modalList = document.getElementById('modal-alerts-list');
+                const countBadge = document.getElementById('notif-count');
+                const unreadCount = dummyNotifs.notifications.filter(n => n.unread).length;
+                
+                countBadge.innerText = unreadCount;
+                countBadge.style.display = unreadCount > 0 ? 'block' : 'none';
+
+                const notificationHTML = dummyNotifs.notifications.map(n => `
+                    <div class="notification-item p-3 ${n.unread ? 'unread' : ''}" onclick="markAsRead(${n.id})" style="cursor:pointer; border-bottom: 1px solid #f1f3f9;">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-grow-1">
+                                <p class="small fw-bold mb-1" style="color: #1B3E9C;">${n.title}</p>
+                                <p class="extra-small text-muted mb-1">${n.body}</p>
+                                <span class="extra-small text-secondary">${n.time}</span>
+                            </div>
+                            ${n.unread ? '<div class="bg-primary rounded-circle" style="width: 8px; height: 8px; margin-top: 5px;"></div>' : ''}
+                        </div>
+                    </div>
+                `).join('');
+
+                list.innerHTML = notificationHTML;
+                if(modalList) modalList.innerHTML = notificationHTML;
+            };
+
+            window.markAsRead = function(id) {
+                const notif = dummyNotifs.notifications.find(n => n.id === id);
+                if (notif) notif.unread = false;
+                renderNotifications();
+            };
+
+            window.clearNotifications = function() {
+                dummyNotifs.notifications.forEach(n => n.unread = false);
+                renderNotifications();
+            };
+
+            // 2. SEARCH & FILTER Logic with "Not Found" message
+            const searchInput = document.getElementById('employerSearchInput');
+            const tableBody = document.querySelector('#employerTable tbody');
+            
             function filterTable(query) {
-                const rows = document.querySelectorAll('#employerTable tbody tr');
+                const rows = tableBody.querySelectorAll('tr:not(.no-result-row)');
+                let visibleCount = 0;
+
                 rows.forEach(row => {
                     const name = row.querySelector('.entity-name').innerText.toLowerCase();
                     if (name.includes(query.toLowerCase())) {
                         row.style.display = "";
+                        visibleCount++;
                     } else {
                         row.style.display = "none";
                     }
                 });
+
+                // Check if any results were found
+                const existingNoResult = tableBody.querySelector('.no-result-row');
+                if (visibleCount === 0) {
+                    if (!existingNoResult) {
+                        const noResultRow = document.createElement('tr');
+                        noResultRow.className = 'no-result-row';
+                        noResultRow.innerHTML = `<td colspan="8" class="text-center py-5 text-muted">
+                            <span class="material-symbols-outlined fs-1 d-block mb-2">search_off</span>
+                            Employer not found in database
+                        </td>`;
+                        tableBody.appendChild(noResultRow);
+                    }
+                } else if (existingNoResult) {
+                    existingNoResult.remove();
+                }
             }
 
-            // Existing logic below
+            searchInput.addEventListener('input', (e) => filterTable(e.target.value));
+
+            // Existing logic
             let selectedName = "";
             let currentAction = "";
             const confirmModal = new bootstrap.Modal(document.getElementById('confirmActionModal'));
@@ -180,12 +276,10 @@
                 currentAction = action;
                 document.getElementById('confirm-title').innerText = `Confirm ${action}`;
                 document.getElementById('confirm-text').innerText = `Apply ${action} to ${name}?`;
-                
                 const iconBox = document.getElementById('confirm-icon-container');
                 iconBox.innerHTML = action === 'Approve' ? 
                     '<span class="material-symbols-outlined text-success fs-1">verified_user</span>' : 
                     '<span class="material-symbols-outlined text-danger fs-1">block</span>';
-                
                 confirmModal.show();
             }
 
@@ -216,6 +310,14 @@
                 document.getElementById('alert-message').innerText = `Employer ${selectedName} has been ${currentAction.toLowerCase()}d.`;
                 setTimeout(() => { alert.classList.add('d-none'); }, 4000);
             });
+
+            // Initial Renders
+            renderNotifications();
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('search')) {
+                searchInput.value = urlParams.get('search');
+                filterTable(urlParams.get('search'));
+            }
         });
     </script>
 </body>
