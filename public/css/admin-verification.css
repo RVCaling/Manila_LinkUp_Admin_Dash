@@ -98,3 +98,100 @@ textarea.form-control::placeholder {
     z-index: 9999;
     min-width: 300px;
 }
+
+/* ... Keep all your existing styles ... */
+
+/* Notification Customization */
+.notification-wrapper {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.notification-wrapper:hover { opacity: 0.7; }
+
+.notification-item {
+    transition: background-color 0.2s;
+}
+
+.notification-item:hover { background-color: #f8f9fe; }
+
+.notification-item.unread {
+    background-color: #f0f4ff; /* Light blue tint for unread */
+}
+
+/* Custom Scrollbar for Notifications and Modal */
+#notification-list::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar {
+    width: 4px;
+}
+#notification-list::-webkit-scrollbar-thumb,
+.modal-body::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+    border-radius: 10px;
+}
+
+/* Modal Scale Animation (Consolidated) */
+.modal-content {
+    animation: modalScale 0.2s ease-out;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+}
+
+@keyframes modalScale {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Badge Tweaks */
+.extra-small { font-size: 0.65rem; }
+
+/* Success Alert Positioning */
+#js-success-alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    background-color: #d1e7dd; 
+    color: #0f5132;
+}
+
+/* New Status Badges */
+.bg-danger-subtle {
+    background-color: #ffebee !important;
+}
+
+.text-danger {
+    color: #d32f2f !important;
+}
+
+.border-danger {
+    border-color: #f44336 !important;
+}
+
+/* Modal Enhancements */
+.modal-content {
+    border: none !important;
+}
+
+#modal-user-img {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.italic {
+    font-style: italic;
+}
+
+.status-cell span {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Modal Animation Consolidated */
+@keyframes modalScale {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal.show .modal-dialog {
+    animation: modalScale 0.2s ease-out;
+}

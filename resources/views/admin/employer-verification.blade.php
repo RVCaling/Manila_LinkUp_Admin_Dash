@@ -21,9 +21,26 @@
                 <h1 class="fw-bold mb-0" style="color: #1B3E9C;">Employer Verification</h1>
                 <p class="text-muted small">Review business permits and verify company accounts.</p>
             </div>
-            <div class="notification-wrapper position-relative">
-                <span class="material-symbols-outlined fs-2 text-muted" style="cursor: pointer;">notifications</span>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger border border-light" style="padding: 5px; font-size: 10px;">5</span>
+            <div class="d-flex align-items-center">
+                <div class="dropdown">
+                    <div class="notification-wrapper position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="material-symbols-outlined fs-2 text-muted" style="cursor: pointer;">notifications</span>
+                        <span id="notif-count" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger border border-light" style="padding: 5px; font-size: 10px;">0</span>
+                    </div>
+                    
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-0 mt-2" aria-labelledby="notificationDropdown" style="width: 320px; overflow: hidden;">
+                        <li class="p-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="fw-bold mb-0">Notifications</h6>
+                                <button class="btn btn-sm text-primary p-0 extra-small" onclick="clearNotifications()">Mark all as read</button>
+                            </div>
+                        </li>
+                        <div id="notification-list" style="max-height: 350px; overflow-y: auto;"></div>
+                        <li class="p-2 text-center border-top">
+                            <a href="#" class="text-muted extra-small text-decoration-none" data-bs-toggle="modal" data-bs-target="#alertsModal">View all alerts</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -74,6 +91,23 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="alertsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" style="color: #1B3E9C;">System Notifications</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="p-3 border-bottom d-flex justify-content-end">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 extra-small" onclick="clearNotifications()">Mark all as read</button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="modal-alerts-list"></div>
                 </div>
             </div>
         </div>
@@ -145,78 +179,9 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // NEW: URL Redirection Logic
-            const urlParams = new URLSearchParams(window.location.search);
-            const searchQuery = urlParams.get('search');
-            
-            if (searchQuery) {
-                const searchInput = document.getElementById('employerSearchInput');
-                searchInput.value = searchQuery;
-                filterTable(searchQuery);
-            }
-
-            function filterTable(query) {
-                const rows = document.querySelectorAll('#employerTable tbody tr');
-                rows.forEach(row => {
-                    const name = row.querySelector('.entity-name').innerText.toLowerCase();
-                    if (name.includes(query.toLowerCase())) {
-                        row.style.display = "";
-                    } else {
-                        row.style.display = "none";
-                    }
-                });
-            }
-
-            // Existing logic below
-            let selectedName = "";
-            let currentAction = "";
-            const confirmModal = new bootstrap.Modal(document.getElementById('confirmActionModal'));
-            const viewModal = new bootstrap.Modal(document.getElementById('verificationModal'));
-
-            function triggerConfirm(name, action) {
-                selectedName = name;
-                currentAction = action;
-                document.getElementById('confirm-title').innerText = `Confirm ${action}`;
-                document.getElementById('confirm-text').innerText = `Apply ${action} to ${name}?`;
-                
-                const iconBox = document.getElementById('confirm-icon-container');
-                iconBox.innerHTML = action === 'Approve' ? 
-                    '<span class="material-symbols-outlined text-success fs-1">verified_user</span>' : 
-                    '<span class="material-symbols-outlined text-danger fs-1">block</span>';
-                
-                confirmModal.show();
-            }
-
-            document.querySelectorAll('.action-approve-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const name = e.target.closest('tr').querySelector('.entity-name').innerText;
-                    triggerConfirm(name, 'Approve');
-                });
-            });
-
-            document.querySelectorAll('.action-reject-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const name = e.target.closest('tr').querySelector('.entity-name').innerText;
-                    triggerConfirm(name, 'Reject');
-                });
-            });
-
-            document.getElementById('btn-verify-entity').addEventListener('click', () => {
-                const name = document.getElementById('modalEntityName').innerText;
-                viewModal.hide();
-                triggerConfirm(name, 'Approve');
-            });
-
-            document.getElementById('btn-confirm-submit').addEventListener('click', () => {
-                confirmModal.hide();
-                const alert = document.getElementById('js-success-alert');
-                alert.classList.remove('d-none');
-                document.getElementById('alert-message').innerText = `Employer ${selectedName} has been ${currentAction.toLowerCase()}d.`;
-                setTimeout(() => { alert.classList.add('d-none'); }, 4000);
-            });
-        });
-    </script>
+    
+    <script src="{{ asset('js/notifications.js') }}"></script>
+    
+    <script src="{{ asset('js/employer-verification.js') }}"></script>
 </body>
 </html>
