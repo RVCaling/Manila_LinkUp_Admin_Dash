@@ -42,7 +42,7 @@
                     </ul>
                 </div>
             </div>
-            </div>
+        </div>
 
         <div id="js-success-alert" class="alert alert-success border-0 shadow-sm rounded-3 mb-4 d-none" role="alert">
             <span id="alert-message">Action processed successfully.</span>
@@ -52,7 +52,11 @@
             <div class="card-body p-4">
                 <div class="d-flex mb-4">
                     <div class="input-group w-auto">
-                        <input type="text" id="seekerSearchInput" class="form-control border-light bg-light rounded-start-pill px-4" placeholder="Search seeker..." style="min-width: 300px;">
+                        <input type="text" 
+                        id="seekerSearchInput" 
+                        class="form-control border-light bg-light rounded-start-pill px-4" 
+                        placeholder="Search seeker..." 
+                        style="min-width: 300px;">
                         <button class="btn btn-primary rounded-end-pill px-4" style="background-color: #1B3E9C; border: none;">Search</button>
                     </div>
                 </div>
@@ -213,191 +217,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 1. Notification Logic
-            const dummyNotifs = {
-                notifications: [
-                    { id: 1, title: 'New Seeker Registration', body: 'Maria Santos uploaded ID for verification.', time: '2 mins ago', unread: true },
-                    { id: 2, title: 'System Alert', body: 'Server load reached 85% in Manila node.', time: '1 hour ago', unread: true },
-                    { id: 3, title: 'New Employer', body: 'Logistics Co registered in Malate.', time: '3 hours ago', unread: true },
-                    { id: 4, title: 'Verification Approved', body: 'Intramuros Tour is now active.', time: 'Yesterday', unread: false }
-                ]
-            };
-
-            window.renderNotifications = function() {
-                const list = document.getElementById('notification-list');
-                const modalList = document.getElementById('modal-alerts-list');
-                const countBadge = document.getElementById('notif-count');
-                const unreadCount = dummyNotifs.notifications.filter(n => n.unread).length;
-                
-                countBadge.innerText = unreadCount;
-                countBadge.style.display = unreadCount > 0 ? 'block' : 'none';
-
-                const notificationHTML = dummyNotifs.notifications.map(n => `
-                    <div class="notification-item p-3 ${n.unread ? 'unread' : ''}" onclick="markAsRead(${n.id})" style="cursor:pointer; border-bottom: 1px solid #f1f3f9;">
-                        <div class="d-flex align-items-start">
-                            <div class="flex-grow-1">
-                                <p class="small fw-bold mb-1" style="color: #1B3E9C;">${n.title}</p>
-                                <p class="extra-small text-muted mb-1">${n.body}</p>
-                                <span class="extra-small text-secondary">${n.time}</span>
-                            </div>
-                            ${n.unread ? '<div class="bg-primary rounded-circle" style="width: 8px; height: 8px; margin-top: 5px;"></div>' : ''}
-                        </div>
-                    </div>
-                `).join('');
-
-                list.innerHTML = notificationHTML;
-                if(modalList) modalList.innerHTML = notificationHTML;
-            };
-
-            window.markAsRead = function(id) {
-                const notif = dummyNotifs.notifications.find(n => n.id === id);
-                if (notif) notif.unread = false;
-                renderNotifications();
-            };
-
-            window.clearNotifications = function() {
-                dummyNotifs.notifications.forEach(n => n.unread = false);
-                renderNotifications();
-            };
-
-            // 2. SEARCH Logic
-            const searchInput = document.getElementById('seekerSearchInput');
-            const tableBody = document.querySelector('#seekerTable tbody');
-
-            function filterTable(query) {
-                const rows = tableBody.querySelectorAll('tr:not(.no-result-row)');
-                let visibleCount = 0;
-
-                rows.forEach(row => {
-                    const name = row.querySelector('.seeker-name').innerText.toLowerCase();
-                    if (name.includes(query.toLowerCase())) {
-                        row.style.display = "";
-                        visibleCount++;
-                    } else {
-                        row.style.display = "none";
-                    }
-                });
-
-                const existingNoResult = tableBody.querySelector('.no-result-row');
-                if (visibleCount === 0) {
-                    if (!existingNoResult) {
-                        const noResultRow = document.createElement('tr');
-                        noResultRow.className = 'no-result-row';
-                        noResultRow.innerHTML = `<td colspan="9" class="text-center py-5 text-muted">
-                            <span class="material-symbols-outlined fs-1 d-block mb-2">person_search</span>
-                            User not found in database
-                        </td>`;
-                        tableBody.appendChild(noResultRow);
-                    }
-                } else if (existingNoResult) {
-                    existingNoResult.remove();
-                }
-            }
-
-            searchInput.addEventListener('input', (e) => filterTable(e.target.value));
-
-            // Modal/Action logic
-            let selectedSeeker = "";
-            let currentAction = "";
-            const confirmModal = new bootstrap.Modal(document.getElementById('confirmActionModal'));
-            const verificationModal = new bootstrap.Modal(document.getElementById('verificationModal'));
-
-            function triggerConfirm(name, action) {
-                selectedSeeker = name;
-                currentAction = action;
-                const title = document.getElementById('confirm-title');
-                const text = document.getElementById('confirm-text');
-                const iconBox = document.getElementById('confirm-icon-container');
-                const confirmBtn = document.getElementById('btn-confirm-submit');
-
-                if(action === 'Approve' || action === 'Verify') {
-                    title.innerText = "Confirm Verification";
-                    text.innerText = `Verify and approve account for ${name}? The seeker will be marked as verified.`;
-                    iconBox.innerHTML = '<span class="material-symbols-outlined text-success fs-1">verified_user</span>';
-                    confirmBtn.className = "btn btn-success rounded-3";
-                } else if(action === 'Reject') {
-                    title.innerText = "Confirm Rejection";
-                    text.innerText = `Are you sure you want to reject ${name}?`;
-                    iconBox.innerHTML = '<span class="material-symbols-outlined text-danger fs-1">cancel</span>';
-                    confirmBtn.className = "btn btn-danger rounded-3";
-                } else if(action === 'Clarification') {
-                    title.innerText = "Request Clarification";
-                    text.innerText = `Send clarification request to ${name}?`;
-                    iconBox.innerHTML = '<span class="material-symbols-outlined text-warning fs-1">error</span>';
-                    confirmBtn.className = "btn btn-warning rounded-3";
-                }
-                confirmModal.show();
-            }
-
-            // Table buttons
-            document.querySelectorAll('.action-approve-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const name = e.target.closest('tr').querySelector('.seeker-name').innerText;
-                    triggerConfirm(name, 'Approve');
-                });
-            });
-
-            document.querySelectorAll('.action-reject-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const name = e.target.closest('tr').querySelector('.seeker-name').innerText;
-                    triggerConfirm(name, 'Reject');
-                });
-            });
-
-            // Modal: Verify Seeker Button
-            document.getElementById('btn-verify-seeker').addEventListener('click', function() {
-                const name = document.getElementById('modalSeekerName').innerText;
-                verificationModal.hide();
-                triggerConfirm(name, 'Verify');
-            });
-
-            // Modal: Request Clarification Button
-            document.getElementById('btn-request-clarification').addEventListener('click', function() {
-                const notes = document.getElementById('adminNotesText').value.trim();
-                const name = document.getElementById('modalSeekerName').innerText;
-                
-                if (notes === "") {
-                    alert("Please provide clarification details in the Verification Notes.");
-                    document.getElementById('adminNotesText').focus();
-                    return;
-                }
-                
-                verificationModal.hide();
-                triggerConfirm(name, 'Clarification');
-            });
-
-            // Final Confirmation
-            document.getElementById('btn-confirm-submit').addEventListener('click', function() {
-                confirmModal.hide();
-                const alertBox = document.getElementById('js-success-alert');
-                const alertMsg = document.getElementById('alert-message');
-                
-                alertBox.classList.remove('d-none');
-                
-                if(currentAction === 'Approve' || currentAction === 'Verify') {
-                    alertMsg.innerText = `Seeker ${selectedSeeker} is now verified successfully.`;
-                    // Update UI status in table (demo logic)
-                    document.querySelectorAll('tr').forEach(row => {
-                        const nameCell = row.querySelector('.seeker-name');
-                        if(nameCell && nameCell.innerText === selectedSeeker) {
-                            const statusBadge = row.querySelector('.seeker-status');
-                            statusBadge.innerText = "Verified";
-                            statusBadge.className = "badge rounded-pill bg-success text-white seeker-status";
-                        }
-                    });
-                } else if(currentAction === 'Clarification') {
-                    alertMsg.innerText = `Clarification request sent to ${selectedSeeker}.`;
-                } else {
-                    alertMsg.innerText = `Successfully processed ${currentAction} for ${selectedSeeker}.`;
-                }
-                
-                setTimeout(() => { alertBox.classList.add('d-none'); }, 4000);
-            });
-
-            renderNotifications();
-        });
-    </script>
+    <script src="{{ asset('js/notifications.js') }}"></script>
+    <script src="{{ asset('js/seeker-verification.js') }}"></script>
 </body>
 </html>

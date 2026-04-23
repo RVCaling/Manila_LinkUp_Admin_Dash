@@ -22,7 +22,28 @@
                 <h1 class="fw-bold mb-0" style="color: #1B3E9C;">System Analytics</h1>
                 <p class="text-muted small">Visualizing platform growth and engagement metrics.</p>
             </div>
-            <div class="d-flex gap-2">
+            
+            <div class="d-flex align-items-center gap-3">
+                <div class="dropdown">
+                    <div class="notification-wrapper me-2 position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="material-symbols-outlined fs-2 text-muted" style="cursor: pointer;">notifications</span>
+                        <span id="notif-count" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger border border-light" style="padding: 5px; font-size: 10px;">0</span>
+                    </div>
+                    
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-0 mt-2" aria-labelledby="notificationDropdown" style="width: 320px; overflow: hidden;">
+                        <li class="p-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="fw-bold mb-0">Notifications</h6>
+                                <button class="btn btn-sm text-primary p-0 extra-small" onclick="clearNotifications()">Mark all as read</button>
+                            </div>
+                        </li>
+                        <div id="notification-list" style="max-height: 350px; overflow-y: auto;"></div>
+                        <li class="p-2 text-center border-top">
+                            <a href="#" class="text-muted extra-small text-decoration-none" data-bs-toggle="modal" data-bs-target="#alertsModal">View all alerts</a>
+                        </li>
+                    </ul>
+                </div>
+
                 <button class="btn btn-white bg-white border shadow-sm rounded-pill px-3 py-2 small fw-bold">
                     <span class="material-symbols-outlined align-middle fs-5">calendar_month</span> Last 30 Days
                 </button>
@@ -90,106 +111,26 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Updated Palette: Indigo, Teal, Coral, Gold, Slate
-            const palette = {
-                indigo: '#4F46E5',
-                teal: '#0D9488',
-                coral: '#FB7185',
-                amber: '#F59E0B',
-                slate: '#64748B',
-                lightTeal: 'rgba(13, 148, 136, 0.2)'
-            };
+    <div class="modal fade" id="alertsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" style="color: #1B3E9C;">System Notifications</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="p-3 border-bottom d-flex justify-content-end">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 extra-small" onclick="clearNotifications()">Mark all as read</button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="modal-alerts-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            const districtData = {
-                labels: ['Tondo', 'Binondo', 'Malate', 'Sampaloc', 'Ermita'],
-                counts: [1200, 450, 890, 1100, 600],
-                colors: [palette.indigo, palette.teal, palette.coral, palette.amber, palette.slate]
-            };
-
-            const growthData = {
-                months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                seekers: [400, 600, 800, 1100, 1300, 1500],
-                employers: [100, 150, 300, 450, 500, 650]
-            };
-
-            // 1. District Doughnut Chart
-            new Chart(document.getElementById('districtChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: districtData.labels,
-                    datasets: [{
-                        data: districtData.counts,
-                        backgroundColor: districtData.colors,
-                        hoverOffset: 10,
-                        borderWidth: 4,
-                        borderColor: '#ffffff',
-                        cutout: '75%'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
-            });
-
-            // Legend Generation
-            const legendBox = document.getElementById('district-legend');
-            districtData.labels.forEach((label, i) => {
-                legendBox.innerHTML += `
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <div style="width:10px; height:10px; border-radius:50%; background:${districtData.colors[i]}"></div>
-                            <span class="small text-muted">${label}</span>
-                        </div>
-                        <span class="small fw-bold">${districtData.counts[i]}</span>
-                    </div>`;
-            });
-
-            // 2. Growth Bar Chart
-            new Chart(document.getElementById('growthChart'), {
-                type: 'bar',
-                data: {
-                    labels: growthData.months,
-                    datasets: [
-                        {
-                            label: 'Seekers',
-                            data: growthData.seekers,
-                            backgroundColor: palette.indigo,
-                            borderRadius: 8,
-                            barPercentage: 0.6
-                        },
-                        {
-                            label: 'Employers',
-                            data: growthData.employers,
-                            backgroundColor: palette.teal,
-                            borderRadius: 8,
-                            barPercentage: 0.6
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { 
-                            position: 'top',
-                            align: 'end',
-                            labels: { usePointStyle: true, padding: 20 }
-                        } 
-                    },
-                    scales: {
-                        x: { grid: { display: false } },
-                        y: { 
-                            beginAtZero: true, 
-                            grid: { borderDash: [5, 5], color: '#e2e8f0' } 
-                        }
-                    }
-                }
-            });
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="{{ asset('js/notifications.js') }}"></script>
+    <script src="{{ asset('js/analytics.js') }}"></script>
 </body>
 </html>

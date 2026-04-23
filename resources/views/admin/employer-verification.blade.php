@@ -42,7 +42,7 @@
                     </ul>
                 </div>
             </div>
-            </div>
+        </div>
 
         <div id="js-success-alert" class="alert alert-success border-0 shadow-sm rounded-3 mb-4 d-none" role="alert">
             <span id="alert-message">Action processed successfully.</span>
@@ -179,146 +179,9 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 1. Notification System Logic (Same as User Database)
-            const dummyNotifs = {
-                notifications: [
-                    { id: 1, title: 'New Seeker Registration', body: 'Maria Santos uploaded ID for verification.', time: '2 mins ago', unread: true },
-                    { id: 2, title: 'System Alert', body: 'Server load reached 85% in Manila node.', time: '1 hour ago', unread: true },
-                    { id: 3, title: 'New Employer', body: 'Logistics Co registered in Malate.', time: '3 hours ago', unread: true },
-                    { id: 4, title: 'Verification Approved', body: 'Intramuros Tour is now active.', time: 'Yesterday', unread: false }
-                ]
-            };
-
-            window.renderNotifications = function() {
-                const list = document.getElementById('notification-list');
-                const modalList = document.getElementById('modal-alerts-list');
-                const countBadge = document.getElementById('notif-count');
-                const unreadCount = dummyNotifs.notifications.filter(n => n.unread).length;
-                
-                countBadge.innerText = unreadCount;
-                countBadge.style.display = unreadCount > 0 ? 'block' : 'none';
-
-                const notificationHTML = dummyNotifs.notifications.map(n => `
-                    <div class="notification-item p-3 ${n.unread ? 'unread' : ''}" onclick="markAsRead(${n.id})" style="cursor:pointer; border-bottom: 1px solid #f1f3f9;">
-                        <div class="d-flex align-items-start">
-                            <div class="flex-grow-1">
-                                <p class="small fw-bold mb-1" style="color: #1B3E9C;">${n.title}</p>
-                                <p class="extra-small text-muted mb-1">${n.body}</p>
-                                <span class="extra-small text-secondary">${n.time}</span>
-                            </div>
-                            ${n.unread ? '<div class="bg-primary rounded-circle" style="width: 8px; height: 8px; margin-top: 5px;"></div>' : ''}
-                        </div>
-                    </div>
-                `).join('');
-
-                list.innerHTML = notificationHTML;
-                if(modalList) modalList.innerHTML = notificationHTML;
-            };
-
-            window.markAsRead = function(id) {
-                const notif = dummyNotifs.notifications.find(n => n.id === id);
-                if (notif) notif.unread = false;
-                renderNotifications();
-            };
-
-            window.clearNotifications = function() {
-                dummyNotifs.notifications.forEach(n => n.unread = false);
-                renderNotifications();
-            };
-
-            // 2. SEARCH & FILTER Logic with "Not Found" message
-            const searchInput = document.getElementById('employerSearchInput');
-            const tableBody = document.querySelector('#employerTable tbody');
-            
-            function filterTable(query) {
-                const rows = tableBody.querySelectorAll('tr:not(.no-result-row)');
-                let visibleCount = 0;
-
-                rows.forEach(row => {
-                    const name = row.querySelector('.entity-name').innerText.toLowerCase();
-                    if (name.includes(query.toLowerCase())) {
-                        row.style.display = "";
-                        visibleCount++;
-                    } else {
-                        row.style.display = "none";
-                    }
-                });
-
-                // Check if any results were found
-                const existingNoResult = tableBody.querySelector('.no-result-row');
-                if (visibleCount === 0) {
-                    if (!existingNoResult) {
-                        const noResultRow = document.createElement('tr');
-                        noResultRow.className = 'no-result-row';
-                        noResultRow.innerHTML = `<td colspan="8" class="text-center py-5 text-muted">
-                            <span class="material-symbols-outlined fs-1 d-block mb-2">search_off</span>
-                            Employer not found in database
-                        </td>`;
-                        tableBody.appendChild(noResultRow);
-                    }
-                } else if (existingNoResult) {
-                    existingNoResult.remove();
-                }
-            }
-
-            searchInput.addEventListener('input', (e) => filterTable(e.target.value));
-
-            // Existing logic
-            let selectedName = "";
-            let currentAction = "";
-            const confirmModal = new bootstrap.Modal(document.getElementById('confirmActionModal'));
-            const viewModal = new bootstrap.Modal(document.getElementById('verificationModal'));
-
-            function triggerConfirm(name, action) {
-                selectedName = name;
-                currentAction = action;
-                document.getElementById('confirm-title').innerText = `Confirm ${action}`;
-                document.getElementById('confirm-text').innerText = `Apply ${action} to ${name}?`;
-                const iconBox = document.getElementById('confirm-icon-container');
-                iconBox.innerHTML = action === 'Approve' ? 
-                    '<span class="material-symbols-outlined text-success fs-1">verified_user</span>' : 
-                    '<span class="material-symbols-outlined text-danger fs-1">block</span>';
-                confirmModal.show();
-            }
-
-            document.querySelectorAll('.action-approve-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const name = e.target.closest('tr').querySelector('.entity-name').innerText;
-                    triggerConfirm(name, 'Approve');
-                });
-            });
-
-            document.querySelectorAll('.action-reject-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const name = e.target.closest('tr').querySelector('.entity-name').innerText;
-                    triggerConfirm(name, 'Reject');
-                });
-            });
-
-            document.getElementById('btn-verify-entity').addEventListener('click', () => {
-                const name = document.getElementById('modalEntityName').innerText;
-                viewModal.hide();
-                triggerConfirm(name, 'Approve');
-            });
-
-            document.getElementById('btn-confirm-submit').addEventListener('click', () => {
-                confirmModal.hide();
-                const alert = document.getElementById('js-success-alert');
-                alert.classList.remove('d-none');
-                document.getElementById('alert-message').innerText = `Employer ${selectedName} has been ${currentAction.toLowerCase()}d.`;
-                setTimeout(() => { alert.classList.add('d-none'); }, 4000);
-            });
-
-            // Initial Renders
-            renderNotifications();
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('search')) {
-                searchInput.value = urlParams.get('search');
-                filterTable(urlParams.get('search'));
-            }
-        });
-    </script>
+    
+    <script src="{{ asset('js/notifications.js') }}"></script>
+    
+    <script src="{{ asset('js/employer-verification.js') }}"></script>
 </body>
 </html>

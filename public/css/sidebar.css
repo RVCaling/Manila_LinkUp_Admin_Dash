@@ -66,10 +66,16 @@
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Logout Specific Hover */
+/* Logout Specific - Forced White */
+.logout-btn {
+    color: white !important;
+    opacity: 0.9;
+}
+
 .logout-btn:hover {
-    background-color: rgba(220, 53, 69, 0.1) !important; /* Subtle red hover */
+    background-color: rgba(220, 53, 69, 0.2) !important; /* Slightly stronger red hover for visibility */
     color: #ffc1c1 !important;
+    opacity: 1;
 }
 
 /* Footer Section - Rounded Pill Card */
@@ -108,4 +114,14 @@
 .pill-role {
     font-size: 0.75rem;
     color: #666;
+}
+
+/* Fix for Red Logout issue */
+.nav-link-custom.logout-btn {
+    color: white !important;
+}
+
+.nav-link-custom.logout-btn:hover {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+    color: #ffc1c1 !important;
 }
