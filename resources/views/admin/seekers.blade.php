@@ -10,6 +10,10 @@
     <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin-verification.css') }}">
+    <style>
+        .extra-small { font-size: 0.75rem; }
+        .notification-item.unread { background-color: #f8f9ff; }
+    </style>
 </head>
 <body class="bg-light d-flex">
 
@@ -21,6 +25,7 @@
                 <h1 class="fw-bold mb-0" style="color: #1B3E9C;">Seeker Verification</h1>
                 <p class="text-muted small">Manage and verify job seeker accounts for Manila City.</p>
             </div>
+            
             <div class="d-flex align-items-center">
                 <div class="dropdown">
                     <div class="notification-wrapper position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -53,10 +58,10 @@
                 <div class="d-flex mb-4">
                     <div class="input-group w-auto">
                         <input type="text" 
-                        id="seekerSearchInput" 
-                        class="form-control border-light bg-light rounded-start-pill px-4" 
-                        placeholder="Search seeker..." 
-                        style="min-width: 300px;">
+                            id="seekerSearchInput" 
+                            class="form-control border-light bg-light rounded-start-pill px-4" 
+                            placeholder="Search by name or code..." 
+                            style="min-width: 350px;">
                         <button class="btn btn-primary rounded-end-pill px-4" style="background-color: #1B3E9C; border: none;">Search</button>
                     </div>
                 </div>
@@ -69,148 +74,134 @@
                                 <th class="text-muted small fw-bold">Seeker Code</th>
                                 <th class="text-muted small fw-bold">Name</th>
                                 <th class="text-muted small fw-bold">Email</th>
-                                <th class="text-muted small fw-bold">Document Type</th>
+                                <th class="text-muted small fw-bold">Documents</th>
                                 <th class="text-muted small fw-bold">Status</th>
-                                <th class="text-muted small fw-bold">Location</th>
-                                <th class="text-muted small fw-bold text-center">View</th>
                                 <th class="text-muted small fw-bold text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="fw-bold">1</td>
-                                <td><span class="badge bg-light text-dark border">MLU-2026-0127</span></td>
+                                <td class="text-muted fw-bold small">1</td>
+                                <td class="small fw-bold text-primary">SKR-2026-0127</td>
                                 <td class="fw-bold seeker-name">Gojo Satoru</td>
-                                <td class="text-muted">gojo.s@jujutsu.edu</td>
-                                <td><span class="text-primary fw-bold small"><span class="material-symbols-outlined align-middle fs-6">badge</span> National ID</span></td>
-                                <td><span class="badge rounded-pill bg-warning text-dark seeker-status">Not Verified</span></td>
-                                <td>Malate, Manila</td>
+                                <td class="text-muted small">gojo.s@jujutsu.edu</td>
+                                <td class="small text-muted">National ID, NBI</td>
+                                <td><span class="badge bg-warning-subtle text-warning border border-warning px-3 seeker-status">Pending</span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-dark btn-sm rounded-3 px-3" data-bs-toggle="modal" data-bs-target="#verificationModal"><span class="material-symbols-outlined fs-6 align-middle">visibility</span> View</button>
-                                </td>
-                                <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <button class="btn btn-success btn-sm rounded-3 px-3 action-approve-btn">Approve</button>
-                                        <button class="btn btn-danger btn-sm rounded-3 px-3 action-reject-btn">Reject</button>
-                                    </div>
+                                    <button class="btn btn-outline-dark btn-sm rounded-3 px-3" onclick="openVerificationModal(1)">
+                                        <span class="material-symbols-outlined fs-6 align-middle me-1">description</span>Review Documents
+                                    </button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="modal fade" id="alertsModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold" style="color: #1B3E9C;">System Notifications</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="p-3 border-bottom d-flex justify-content-end">
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 extra-small" onclick="clearNotifications()">Mark all as read</button>
-                </div>
-                <div class="modal-body p-0">
-                    <div id="modal-alerts-list"></div>
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <p class="text-muted small mb-0" id="user-count-text">Showing 1 seekers in database</p>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                            <li class="page-item active"><a class="page-link" href="#" style="background-color: #1B3E9C; border-color: #1B3E9C;">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-0 px-4 pt-4">
                     <div class="d-flex align-items-center">
-                        <div class="bg-dark text-white rounded-3 p-2 me-3">
-                            <span class="material-symbols-outlined align-middle">assignment_ind</span>
+                        <div class="bg-primary text-white rounded-3 p-2 me-3" style="background-color: #1B3E9C !important;">
+                            <span class="material-symbols-outlined align-middle">verified_user</span>
                         </div>
                         <div>
-                            <h5 class="modal-title fw-bold mb-0">Identity Verification - <span id="modalSeekerName">Gojo Satoru</span></h5>
-                            <small class="text-warning fw-bold"><span class="dot bg-warning"></span> Pending Review: #SUB-88219</small>
+                            <h5 class="modal-title fw-bold mb-0">Document Verification</h5>
+                            <p class="text-muted small mb-0">
+                                <span id="modalSeekerName">---</span> | 
+                                <span id="modalSeekerCode" class="fw-bold text-primary">SKR-0000</span></p>
                         </div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <div class="row g-4">
-                        <div class="col-md-7">
-                            <div class="bg-black rounded-4 p-2 d-flex align-items-center justify-content-center mb-3" style="min-height: 320px; border: 1px solid #eee;">
-                                <img src="https://upload.wikimedia.org/wikipedia/en/thumb/9/96/SatoruGojomanga.png/250px-SatoruGojomanga.png" class="img-fluid rounded-3" alt="ID Document Preview">
-                            </div>
-                            <div class="p-3 bg-light rounded-3 border">
-                                <h6 class="fw-bold small mb-2">Document Authenticity Check</h6>
-                                <div class="row g-2 text-center">
-                                    <div class="col-4">
-                                        <div class="p-2 border rounded-3 bg-white">
-                                            <div class="extra-small text-muted">Hologram</div>
-                                            <div class="small fw-bold text-success">Detected</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="p-2 border rounded-3 bg-white">
-                                            <div class="extra-small text-muted">Tampering</div>
-                                            <div class="small fw-bold text-success">Clear</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="p-2 border rounded-3 bg-white">
-                                            <div class="extra-small text-muted">Edge Detection</div>
-                                            <div class="small fw-bold text-success">Valid</div>
-                                        </div>
-                                    </div>
+                    <div class="row">
+                        <div class="col-md-3 border-end">
+                            <h6 class="fw-bold small text-muted text-uppercase mb-3">Files to Verify</h6>
+                            <div class="list-group list-group-flush" id="documentList">
                                 </div>
-                            </div>
                         </div>
-                        <div class="col-md-5">
-                            <div class="verification-checks mb-3">
-                                <div class="check-item d-flex justify-content-between align-items-center bg-success-subtle p-2 rounded-3 mb-2 px-3">
-                                    <span class="small fw-bold text-success"><span class="material-symbols-outlined fs-6 align-middle me-1">check_circle</span> Face Match Score</span>
-                                    <span class="small text-success fw-bold">98%</span>
-                                </div>
-                                <div class="check-item d-flex justify-content-between align-items-center bg-info-subtle p-2 rounded-3 mb-2 px-3">
-                                    <span class="small fw-bold text-info"><span class="material-symbols-outlined fs-6 align-middle me-1">info</span> Data Consistency</span>
-                                    <span class="small text-info fw-bold">High</span>
-                                </div>
-                            </div>
 
-                            <div class="extracted-metadata">
-                                <h6 class="text-muted small fw-bold text-uppercase mb-3">Extracted Metadata</h6>
-                                <div class="d-flex justify-content-between mb-2 pb-1 border-bottom"><span class="small text-muted">FULL NAME</span><span class="small fw-bold text-end">GOJO SATORU</span></div>
-                                <div class="d-flex justify-content-between mb-2 pb-1 border-bottom"><span class="small text-muted">ID NUMBER</span><span class="small fw-bold text-end">123-4567-890</span></div>
-                                <div class="d-flex justify-content-between mb-2 pb-1 border-bottom"><span class="small text-muted">BIRTHDAY</span><span class="small fw-bold text-end">DEC 07, 1989</span></div>
-                                <div class="d-flex justify-content-between mb-2 pb-1 border-bottom"><span class="small text-muted">EXPIRY DATE</span><span class="small fw-bold text-end">DEC 07, 2030</span></div>
-                                <div class="d-flex justify-content-between mb-4 pb-1 border-bottom"><span class="small text-muted">BARANGAY</span><span class="small fw-bold text-end">Barangay 688, Malate</span></div>
-                                
-                                <div class="admin-notes">
-                                    <label class="small text-muted fw-bold mb-2">VERIFICATION NOTES</label>
-                                    <textarea id="adminNotesText" class="form-control bg-light border-0 small" rows="3" placeholder="Reviewer comments..."></textarea>
+                        <div class="col-md-9 px-4">
+                            <div id="documentPreviewContainer">
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        <div class="bg-black rounded-4 d-flex align-items-center justify-content-center mb-3" style="min-height: 400px; border: 1px solid #eee; overflow: hidden;">
+                                            <img id="docImagePreview" src="" class="img-fluid" alt="Document Preview">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="p-3 bg-light rounded-4 mb-4">
+                                            <h6 class="fw-bold small mb-3">AI Comparison Score</h6>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="extra-small text-muted">Face Matching</span>
+                                                <span class="badge bg-success">98% Match</span>
+                                            </div>
+                                            <div class="progress" style="height: 6px;">
+                                                <div class="progress-bar bg-success" style="width: 98%"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="extracted-metadata mb-4">
+                                            <h6 class="text-muted small fw-bold text-uppercase mb-3">Extracted Data</h6>
+                                            <div id="metadataFields">
+                                                </div>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label class="small text-muted fw-bold mb-2">Reviewer Notes</label>
+                                            <textarea id="adminNotesText" class="form-control bg-light border-0 small" rows="3" placeholder="Add observations here..."></textarea>
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-primary rounded-pill py-2" onclick="processDoc('verify')"> Approve Document </button>
+                                            <button class="btn btn-outline-danger rounded-pill py-2" onclick="processDoc('reject')"> Reject with Reason </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer border-0 px-4 pb-4 justify-content-end">
-                    <button type="button" id="btn-request-clarification" class="btn btn-link text-danger text-decoration-none fw-bold me-3">Request Clarification</button>
-                    <button type="button" id="btn-verify-seeker" class="btn btn-primary px-4 py-2" style="background-color: #1B3E9C; border-radius: 8px;">Verify Seeker</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="confirmActionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal fade" id="rejectReasonModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-body p-4 text-center">
-                    <div id="confirm-icon-container" class="mb-3"></div>
-                    <h5 class="fw-bold" id="confirm-title">Are you sure?</h5>
-                    <p class="text-muted small" id="confirm-text">Do you want to process this seeker?</p>
-                    <div class="d-grid gap-2">
-                        <button type="button" id="btn-confirm-submit" class="btn btn-primary rounded-3">Confirm</button>
-                        <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancel</button>
-                    </div>
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold text-danger">Rejection Reason</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted">Please specify why this document or seeker is being rejected.</p>
+                    <select id="rejectReasonSelect" class="form-select mb-3 rounded-3">
+                        <option value="Blurry Image">Image is too blurry / unreadable</option>
+                        <option value="Expired Document">Document has expired</option>
+                        <option value="Mismatch Information">Information doesn't match profile</option>
+                        <option value="Tampered Document">Suspected tampering/editing</option>
+                        <option value="Other">Other (Write below)</option>
+                    </select>
+                    <textarea id="rejectReasonCustom" class="form-control rounded-3" rows="3" placeholder="Additional details..."></textarea>
+                </div>
+                <div class="modal-footer border-0">
+                    <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger rounded-pill px-4" onclick="confirmRejection()">Submit Rejection</button>
                 </div>
             </div>
         </div>

@@ -1,65 +1,63 @@
-/* ... Keep existing styles ... */
-
-.dot {
-    height: 8px;
-    width: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 5px;
-}
-
-.bg-success-subtle {
-    background-color: #e8f5e9 !important;
-}
-
-.modal-header .btn-close {
-    background-color: #f8f9fa;
-    border-radius: 50%;
-    opacity: 1;
-    padding: 10px;
-    font-size: 10px;
-}
-
-.extracted-metadata span {
-    letter-spacing: 0.3px;
-}
-
-textarea.form-control::placeholder {
-    font-size: 0.85rem;
-    color: #adb5bd;
-}
-
-.modal-content {
-    animation: modalScale 0.2s ease-out;
-}
-
-@keyframes modalScale {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-/* Styling specifically for the Verification Workflow */
+/* --- UI Consistency: Seeker Table (Matching Users.blade.php) --- */
 .custom-verification-table thead th {
     background-color: #f8f9fa;
     border-bottom: 2px solid #edf2f9;
     padding: 15px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .custom-verification-table tbody td {
-    padding: 15px;
+    padding: 12px 15px;
     border-bottom: 1px solid #edf2f9;
 }
 
-.dot {
-    height: 8px;
-    width: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 5px;
+/* --- Status Badges (Standardized) --- */
+.badge.bg-warning-subtle { 
+    background-color: #fff3e0 !important; 
+    color: #ef6c00 !important;
+    border: 1px solid #ffe0b2 !important;
 }
 
-.bg-success-subtle {
-    background-color: #e8f5e9 !important;
+.badge.bg-success-subtle { 
+    background-color: #e8f5e9 !important; 
+    color: #2e7d32 !important;
+    border: 1px solid #c8e6c9 !important;
+}
+
+.badge.bg-danger-subtle { 
+    background-color: #ffebee !important; 
+    color: #c62828 !important;
+    border: 1px solid #ffcdd2 !important;
+}
+
+/* --- Verification Modal: Document Sidebar --- */
+#documentList .list-group-item {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid transparent !important;
+    margin-bottom: 8px;
+    padding: 12px;
+}
+
+#documentList .list-group-item:hover {
+    background-color: #f0f4ff;
+}
+
+#documentList .list-group-item.active {
+    background-color: #eef2ff !important;
+    color: #1B3E9C !important;
+    border: 1px solid #1B3E9C !important;
+    font-weight: 600;
+}
+
+/* --- Modal Layout & Components --- */
+.modal-content {
+    border: none !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+    animation: modalScale 0.2s ease-out;
 }
 
 .modal-header .btn-close {
@@ -70,123 +68,64 @@ textarea.form-control::placeholder {
     font-size: 10px;
 }
 
+#docImagePreview {
+    max-height: 450px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
 .extracted-metadata span {
     letter-spacing: 0.3px;
 }
 
-textarea.form-control::placeholder {
+textarea.form-control {
     font-size: 0.85rem;
-    color: #adb5bd;
+    resize: none;
 }
 
-/* Animations */
-.modal-content {
-    animation: modalScale 0.2s ease-out;
+/* --- Global Utilities --- */
+.dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
 }
 
-@keyframes modalScale {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+.extra-small { 
+    font-size: 0.65rem; 
 }
 
-#js-success-alert {
-    background-color: #d1e7dd; 
-    color: #0f5132;
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-    min-width: 300px;
+.text-primary {
+    color: #1B3E9C !important;
 }
 
-/* ... Keep all your existing styles ... */
-
-/* Notification Customization */
-.notification-wrapper {
-    cursor: pointer;
-    transition: opacity 0.2s;
-}
-
+/* --- Notifications & Scrollbars --- */
 .notification-wrapper:hover { opacity: 0.7; }
 
-.notification-item {
-    transition: background-color 0.2s;
-}
-
-.notification-item:hover { background-color: #f8f9fe; }
-
-.notification-item.unread {
-    background-color: #f0f4ff; /* Light blue tint for unread */
-}
-
-/* Custom Scrollbar for Notifications and Modal */
 #notification-list::-webkit-scrollbar,
 .modal-body::-webkit-scrollbar {
     width: 4px;
 }
+
 #notification-list::-webkit-scrollbar-thumb,
 .modal-body::-webkit-scrollbar-thumb {
     background: #e0e0e0;
     border-radius: 10px;
 }
 
-/* Modal Scale Animation (Consolidated) */
-.modal-content {
-    animation: modalScale 0.2s ease-out;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
-}
-
-@keyframes modalScale {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-/* Badge Tweaks */
-.extra-small { font-size: 0.65rem; }
-
-/* Success Alert Positioning */
+/* --- Success Alert Positioning --- */
 #js-success-alert {
     position: fixed;
     top: 20px;
     right: 20px;
     z-index: 9999;
-    min-width: 300px;
-    background-color: #d1e7dd; 
-    color: #0f5132;
+    min-width: 320px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
-/* New Status Badges */
-.bg-danger-subtle {
-    background-color: #ffebee !important;
-}
-
-.text-danger {
-    color: #d32f2f !important;
-}
-
-.border-danger {
-    border-color: #f44336 !important;
-}
-
-/* Modal Enhancements */
-.modal-content {
-    border: none !important;
-}
-
-#modal-user-img {
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-
-.italic {
-    font-style: italic;
-}
-
-.status-cell span {
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-/* Modal Animation Consolidated */
+/* --- Animations --- */
 @keyframes modalScale {
     from { transform: scale(0.95); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
@@ -195,3 +134,94 @@ textarea.form-control::placeholder {
 .modal.show .modal-dialog {
     animation: modalScale 0.2s ease-out;
 }
+
+/* --- UI Consistency: Matches Seekers Table --- */
+/* --- UI Consistency: Table Styling (Matching Seeker View) --- */
+.custom-verification-table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #edf2f9;
+    padding: 15px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-size: 0.75rem;
+    color: #8898aa;
+}
+
+.custom-verification-table tbody td {
+    padding: 16px 15px;
+    border-bottom: 1px solid #edf2f9;
+    font-size: 0.9rem;
+}
+
+/* --- Status Badges --- */
+.badge.bg-warning-subtle { 
+    background-color: #fff3e0 !important; 
+    color: #ef6c00 !important;
+    border: 1px solid #ffe0b2 !important;
+}
+
+.badge.bg-success-subtle { 
+    background-color: #e8f5e9 !important; 
+    color: #2e7d32 !important;
+    border: 1px solid #c8e6c9 !important;
+}
+
+/* --- Document Sidebar --- */
+#documentList .list-group-item {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid transparent !important;
+    padding: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+#documentList .list-group-item:hover {
+    background-color: #f0f4ff;
+    color: #1B3E9C;
+}
+
+#documentList .list-group-item.active {
+    background-color: #eef2ff !important;
+    color: #1B3E9C !important;
+    border: 1px solid #1B3E9C !important;
+    font-weight: 600;
+}
+
+/* --- Modal Styling --- */
+.modal-content {
+    border: none !important;
+    border-radius: 20px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+#docImagePreview {
+    max-height: 550px;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.extracted-metadata p {
+    font-size: 0.95rem;
+}
+
+textarea.form-control {
+    font-size: 0.85rem;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+/* --- Success Alert --- */
+#js-success-alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1060;
+    min-width: 350px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.extra-small { font-size: 0.7rem; }
