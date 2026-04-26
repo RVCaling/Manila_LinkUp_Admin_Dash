@@ -1,12 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Initialize Notifications from the shared notifications.js
+    // 1. Initialize Notifications
     if (typeof renderNotifications === 'function') {
         renderNotifications();
     }
 
-    // 2. SEARCH & FILTER Logic
+    // 2. SEARCH & FILTER Logic (Updated for Document Type and User Count)
     const searchInput = document.getElementById('employerSearchInput');
     const tableBody = document.querySelector('#employerTable tbody');
+    const userCountText = document.getElementById('user-count-text');
     
     function filterTable(query) {
         const rows = tableBody.querySelectorAll('tr:not(.no-result-row)');
@@ -25,7 +26,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // "Not Found" message handling
+        // Update User Count Text
+        if (visibleCount === 0) {
+            userCountText.innerText = "Showing 0 users in database";
+        } else {
+            userCountText.innerText = `Showing ${visibleCount} employers in database`;
+        }
+
+        // Handle No Result Row
         const existingNoResult = tableBody.querySelector('.no-result-row');
         if (visibleCount === 0) {
             if (!existingNoResult) {
@@ -46,80 +54,71 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.addEventListener('input', (e) => filterTable(e.target.value));
     }
 
-    // 3. Action Logic (Approve/Reject)
-    let selectedName = "";
-    let currentAction = "";
-    const confirmModalEl = document.getElementById('confirmActionModal');
-    const viewModalEl = document.getElementById('verificationModal');
-    
-    const confirmModal = confirmModalEl ? new bootstrap.Modal(confirmModalEl) : null;
-    const viewModal = viewModalEl ? new bootstrap.Modal(viewModalEl) : null;
+    // 3. Document Selector Logic
+    const docButtons = document.querySelectorAll('#documentList .list-group-item');
+    const previewImg = document.getElementById('docImagePreview');
 
-    function triggerConfirm(name, action) {
-        selectedName = name;
-        currentAction = action;
-        
-        const titleEl = document.getElementById('confirm-title');
-        const textEl = document.getElementById('confirm-text');
-        const iconBox = document.getElementById('confirm-icon-container');
+    docButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            docButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            previewImg.src = this.getAttribute('data-doc-src');
+        });
+    });
 
-        if (titleEl) titleEl.innerText = `Confirm ${action}`;
-        if (textEl) textEl.innerText = `Apply ${action} to ${name}?`;
-        
-        if (iconBox) {
-            iconBox.innerHTML = action === 'Approve' ? 
-                '<span class="material-symbols-outlined text-success fs-1">verified_user</span>' : 
-                '<span class="material-symbols-outlined text-danger fs-1">block</span>';
-        }
-        
-        if (confirmModal) confirmModal.show();
-    }
+    // 4. Verification & Rejection Logic
+    const viewModal = new bootstrap.Modal(document.getElementById('verificationModal'));
+    const rejectModal = new bootstrap.Modal(document.getElementById('rejectReasonModal'));
+    let currentEmployerName = "";
 
-    // Event Delegation for Table Buttons
+    // Open Main Modal
     document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('action-approve-btn')) {
-            const name = e.target.closest('tr').querySelector('.entity-name').innerText;
-            triggerConfirm(name, 'Approve');
-        }
-        
-        if (e.target.classList.contains('action-reject-btn')) {
-            const name = e.target.closest('tr').querySelector('.entity-name').innerText;
-            triggerConfirm(name, 'Reject');
+        if (e.target.closest('.view-docs-btn')) {
+            const row = e.target.closest('tr');
+            currentEmployerName = row.querySelector('.entity-name').innerText;
+            document.getElementById('modalEntityName').innerText = currentEmployerName;
         }
     });
 
-    // Modal Verify Button
-    const verifyEntityBtn = document.getElementById('btn-verify-entity');
-    if (verifyEntityBtn) {
-        verifyEntityBtn.addEventListener('click', () => {
-            const name = document.getElementById('modalEntityName').innerText;
-            if (viewModal) viewModal.hide();
-            // Small timeout to allow first modal to close before showing second
-            setTimeout(() => triggerConfirm(name, 'Approve'), 300);
-        });
-    }
+    // Handle Approval
+    document.getElementById('btn-verify-entity').addEventListener('click', () => {
+        showSuccessAlert(`${currentEmployerName} has been successfully verified.`);
+        viewModal.hide();
+    });
 
-    // Confirm Submission
-    const confirmSubmitBtn = document.getElementById('btn-confirm-submit');
-    if (confirmSubmitBtn) {
-        confirmSubmitBtn.addEventListener('click', () => {
-            if (confirmModal) confirmModal.hide();
-            
-            const alert = document.getElementById('js-success-alert');
-            const alertMsg = document.getElementById('alert-message');
-            
-            if (alert && alertMsg) {
-                alert.classList.remove('d-none');
-                alertMsg.innerText = `Employer ${selectedName} has been ${currentAction.toLowerCase()}d.`;
-                setTimeout(() => { alert.classList.add('d-none'); }, 4000);
-            }
-        });
-    }
+    // Show Reject Reason Modal
+    document.getElementById('btn-show-reject-reason').addEventListener('click', () => {
+        viewModal.hide();
+        setTimeout(() => rejectModal.show(), 400);
+    });
 
-    // 4. Initial URL Search check
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('search') && searchInput) {
-        searchInput.value = urlParams.get('search');
-        filterTable(urlParams.get('search'));
+    // Toggle "Other" Reason Textarea
+    const reasonSelect = document.getElementById('reject-reason-select');
+    const otherText = document.getElementById('other-reason-text');
+    reasonSelect.addEventListener('change', () => {
+        if (reasonSelect.value === 'other') {
+            otherText.classList.remove('d-none');
+        } else {
+            otherText.classList.add('d-none');
+        }
+    });
+
+    // Confirm Rejection
+    document.getElementById('btn-confirm-reject').addEventListener('click', () => {
+        const reason = reasonSelect.value === 'other' ? otherText.value : reasonSelect.value;
+        if(!reason) { alert("Please provide a reason"); return; }
+        
+        rejectModal.hide();
+        showSuccessAlert(`${currentEmployerName} verification rejected: ${reason}`);
+    });
+
+    function showSuccessAlert(message) {
+        const alert = document.getElementById('js-success-alert');
+        const alertMsg = document.getElementById('alert-message');
+        if (alert && alertMsg) {
+            alert.classList.remove('d-none');
+            alertMsg.innerText = message;
+            setTimeout(() => { alert.classList.add('d-none'); }, 5000);
+        }
     }
 });

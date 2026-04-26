@@ -1,29 +1,75 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // We changed the ID to dbSearchInput to break the browser's memory of the old field
     const searchInput = document.getElementById('dbSearchInput');
     
-    /** * TRIPLE-ACTION AUTOFILL KILLER
+    /** * REINFORCED AUTOFILL KILLER
      */
     if (searchInput) {
-        // 1. Clear immediately
         searchInput.value = '';
+        searchInput.setAttribute('readonly', 'readonly');
         
-        // 2. Clear after a short delay (catches late browser injection)
         setTimeout(() => {
             searchInput.value = '';
-        }, 60);
+            searchInput.removeAttribute('readonly');
+        }, 100);
 
-        // 3. Clear on first interaction
-        searchInput.addEventListener('focus', function() {
-            if (this.value !== '') this.value = '';
-        }, { once: true });
+        window.addEventListener('pageshow', () => {
+            searchInput.value = '';
+        });
     }
 
     // 1. Data Store
     const usersData = {
-        1: { id: 1, name: 'Josh Wayne', email: 'josh.wayne@email.com', phone: '+63 912 345 6789', joined: 'March 10, 2026', type: 'Seeker', status: 'Pending', skills: 'Construction, Carpentry', history: 'Formerly worked as a site helper in QC. Looking for temporary labor roles.', img: 'https://i.pravatar.cc/150?u=josh', suspensionReason: '', needs: 'Valid ID, NBI Clearance' },
-        2: { id: 2, name: 'SM Manila (HR)', email: 'hr@sm-manila.com.ph', phone: '+63 2 8523 7044', joined: 'January 05, 2026', type: 'Employer', status: 'Verified', skills: 'Retail, Customer Service', history: 'Official HR account for SM City Manila. Recruiting for seasonal sales associates.', img: 'https://via.placeholder.com/150', suspensionReason: '', needs: 'Complete' },
-        3: { id: 3, name: 'Mark Rivera', email: 'm.rivera@email.com', phone: '+63 998 765 4321', joined: 'February 20, 2026', type: 'Seeker', status: 'Suspended', skills: 'Delivery, Logistics', history: 'Experienced motorcycle rider. Account suspended due to frequent cancellations.', img: 'https://i.pravatar.cc/150?u=mark', suspensionReason: 'Policy Violation: Excessive job cancellations (3 occurrences in 24 hours).', needs: 'Reason: Policy Violation' }
+        1: { 
+            id: 1, 
+            code: 'SKR-2026-0001',
+            name: 'Josh Wayne', 
+            email: 'josh.wayne@email.com', 
+            phone: '+63 912 345 6789', 
+            joined: 'March 10, 2026', 
+            dob: 'May 12, 1998',
+            type: 'Seeker', 
+            status: 'Pending', 
+            rating: '4.8',
+            district: 'Quiapo, Manila',
+            address: '123 Hidalgo St., Brgy 306, Quiapo, Manila City',
+            img: 'https://i.pravatar.cc/150?u=josh', 
+            suspensionReason: '', 
+            needs: 'Valid ID, NBI Clearance' 
+        },
+        2: { 
+            id: 2, 
+            code: 'EMP-MNL-8821',
+            name: 'SM Manila (HR)', 
+            email: 'hr@sm-manila.com.ph', 
+            phone: '+63 2 8523 7044', 
+            joined: 'January 05, 2026', 
+            dob: 'N/A (Corporate)',
+            type: 'Employer', 
+            status: 'Verified', 
+            rating: '5.0',
+            district: 'Ermita, Manila',
+            address: 'San Marcelino St. cor. Doña Julia Vargas Ave, Ermita, Manila',
+            img: 'https://via.placeholder.com/150', 
+            suspensionReason: '', 
+            needs: 'Complete' 
+        },
+        3: { 
+            id: 3, 
+            code: 'SKR-2026-0412',
+            name: 'Mark Rivera', 
+            email: 'm.rivera@email.com', 
+            phone: '+63 998 765 4321', 
+            joined: 'February 20, 2026', 
+            dob: 'October 22, 1995',
+            type: 'Seeker', 
+            status: 'Suspended', 
+            rating: '3.2',
+            district: 'Binondo, Manila',
+            address: '456 Quintin Paredes St., Binondo, Manila City',
+            img: 'https://i.pravatar.cc/150?u=mark', 
+            suspensionReason: 'Policy Violation: Excessive job cancellations.', 
+            needs: 'Reason: Policy Violation' 
+        }
     };
 
     let activeAction = null; 
@@ -35,11 +81,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!tableBody) return;
         
         tableBody.innerHTML = '';
-        let count = 0;
+        let displayCount = 0;
+        let rowIndex = 1; // Counter for the # column
 
         Object.values(usersData).forEach(user => {
-            if (user.name.toLowerCase().includes(filterTerm) || user.email.toLowerCase().includes(filterTerm)) {
-                count++;
+            if (user.name.toLowerCase().includes(filterTerm) || 
+                user.email.toLowerCase().includes(filterTerm) ||
+                user.code.toLowerCase().includes(filterTerm)) {
+                
+                displayCount++;
                 let statusBadge = '';
                 let needsClass = 'small text-muted italic';
                 
@@ -48,27 +98,32 @@ document.addEventListener('DOMContentLoaded', function() {
                     needsClass = 'small text-success fw-bold';
                 } else if(user.status === 'Suspended') {
                     statusBadge = '<span class="badge bg-danger-subtle text-danger border border-danger px-3">Suspended</span>';
+                } else if(user.status === 'Rejected') {
+                    statusBadge = '<span class="badge bg-secondary-subtle text-secondary border border-secondary px-3">Rejected</span>';
                 } else {
                     statusBadge = '<span class="badge bg-warning-subtle text-warning border border-warning px-3">Pending</span>';
                 }
 
                 const row = `
                     <tr>
-                        <td class="fw-bold">${user.id}</td>
+                        <td class="text-muted fw-bold small">${rowIndex++}</td>
+                        <td class="small fw-bold text-primary">${user.code}</td>
                         <td class="fw-bold user-name">${user.name}</td>
-                        <td class="text-muted">${user.email}</td>
-                        <td><span class="badge rounded-pill ${user.type === 'Seeker' ? 'text-info border-info' : 'text-primary border-primary'}" style="background-color: ${user.type === 'Seeker' ? '#f0faff' : '#eef2ff'}; border: 1px solid;">${user.type}</span></td>
+                        <td class="small text-muted">${user.district}</td>
+                        <td><span class="badge rounded-pill ${user.type === 'Seeker' ? 'text-info border-info' : 'text-primary border-primary'}" 
+                        style="background-color: ${user.type === 'Seeker' ? '#f0faff' : '#eef2ff'}; border: 1px solid;">${user.type}</span></td>
                         <td class="status-cell">${statusBadge}</td>
                         <td class="${needsClass}">${user.needs}</td>
                         <td class="text-center">
-                            <button class="btn btn-outline-dark btn-sm rounded-3 px-3" onclick="viewUserDetails(${user.id})">View Details</button>
+                            <button class="btn btn-outline-dark btn-sm rounded-3 px-3" onclick="viewUserDetails(${user.id})">
+                            <span class="material-symbols-outlined fs-6 align-middle me-1">description</span>View Details</button>
                         </td>
                     </tr>
                 `;
                 tableBody.insertAdjacentHTML('beforeend', row);
             }
         });
-        document.getElementById('user-count-text').innerText = `Showing ${count} users in database`;
+        document.getElementById('user-count-text').innerText = `Showing ${displayCount} users in database`;
     };
 
     // 3. View User Details
@@ -77,13 +132,20 @@ document.addEventListener('DOMContentLoaded', function() {
         activeUserId = id;
         
         document.getElementById('modal-user-name').innerText = user.name;
+        document.getElementById('modal-user-code').innerText = user.code;
         document.getElementById('modal-user-email').innerText = user.email;
         document.getElementById('modal-user-phone').innerText = user.phone;
+        document.getElementById('modal-user-dob').innerText = user.dob;
         document.getElementById('modal-user-joined').innerText = user.joined;
         document.getElementById('modal-user-type').innerText = user.type;
-        document.getElementById('modal-user-skills').innerText = user.skills;
-        document.getElementById('modal-user-history').innerText = user.history;
+        document.getElementById('modal-user-district').innerText = user.district;
+        document.getElementById('modal-user-address').innerText = user.address;
         document.getElementById('modal-user-img').src = user.img;
+        
+        document.getElementById('modal-user-rating').innerHTML = `${user.rating} <span class="rating-star">★</span>`;
+
+        const verifyLink = document.getElementById('verify-docs-link');
+        verifyLink.href = user.type === 'Seeker' ? '/admin/seekers' : '/admin/employers';
 
         const statusEl = document.getElementById('modal-user-status');
         const reasonBox = document.getElementById('suspension-reason-box');
@@ -104,6 +166,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             if(user.status === 'Verified') {
                 statusEl.innerHTML = '<span class="badge bg-success-subtle text-success border border-success px-3">Verified</span>';
+            } else if(user.status === 'Rejected') {
+                statusEl.innerHTML = '<span class="badge bg-secondary-subtle text-secondary border border-secondary px-3">Rejected</span>';
             } else {
                 statusEl.innerHTML = '<span class="badge bg-warning-subtle text-warning border border-warning px-3">Pending</span>';
             }
@@ -165,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const user = usersData[activeUserId];
         
         if(activeAction === 'delete') {
-            message.innerText = `User ID ${activeUserId} (${user.name}) has been purged.`;
+            message.innerText = `User ${user.code} (${user.name}) has been purged.`;
             delete usersData[activeUserId];
         } else if(activeAction === 'unsuspend') {
             user.status = 'Verified';
@@ -197,10 +261,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initial Table Render
     renderUserTable();
-    
-    // Initial Notifications Render
+
+    // Call shared notification renderer
     if (typeof renderNotifications === 'function') {
         renderNotifications();
     }

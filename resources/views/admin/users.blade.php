@@ -14,6 +14,7 @@
         .extra-small { font-size: 0.75rem; }
         .notification-item.unread { background-color: #f8f9ff; }
         .italic { font-style: italic; }
+        .rating-star { color: #ffc107; font-size: 1rem; vertical-align: middle; }
     </style>
 </head>
 <body class="bg-light d-flex">
@@ -58,15 +59,18 @@
             <div class="card-body p-4">
                 <div class="d-flex mb-4">
                     <div class="input-group w-auto">
-                        <input type="text" name="fake_username" style="position:absolute; top:-9999px; left:-9999px;">
-                       <input type="text" 
-                        id="dbSearchInput" 
-                        name="prevent_autofill_val_123"
-                        class="form-control border-light bg-light rounded-start-pill px-4" 
-                        placeholder="Search by name or email..." 
-                        style="min-width: 350px;" 
-                        autocomplete="new-password"
-                        role="presentation">
+                        <input type="text" style="display:none">
+                        <input type="password" style="display:none">
+                        
+                        <input type="text" 
+                            id="dbSearchInput" 
+                            name="search_query_{{ time() }}"
+                            class="form-control border-light bg-light rounded-start-pill px-4" 
+                            placeholder="Search by name, email, or code..." 
+                            style="min-width: 350px;" 
+                            autocomplete="off"
+                            readonly 
+                            onfocus="this.removeAttribute('readonly');">
                         <button class="btn btn-primary rounded-end-pill px-4" style="background-color: #1B3E9C; border: none;">Search</button>
                     </div>
                 </div>
@@ -76,16 +80,16 @@
                         <thead>
                             <tr>
                                 <th class="text-muted small fw-bold">#</th>
+                                <th class="text-muted small fw-bold">User Code</th>
                                 <th class="text-muted small fw-bold">Name</th>
-                                <th class="text-muted small fw-bold">Email</th>
+                                <th class="text-muted small fw-bold">Location</th>
                                 <th class="text-muted small fw-bold">Account Type</th>
                                 <th class="text-muted small fw-bold">Status</th>
                                 <th class="text-muted small fw-bold">Verification Needs</th>
                                 <th class="text-muted small fw-bold text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="user-table-body">
-                            </tbody>
+                        <tbody id="user-table-body"></tbody>
                     </table>
                 </div>
                 
@@ -115,41 +119,62 @@
                         <div class="col-md-4 text-center border-end">
                             <img id="modal-user-img" src="https://via.placeholder.com/150" class="rounded-circle mb-3 border p-1" style="width: 120px; height: 120px; object-fit: cover;">
                             <h5 id="modal-user-name" class="fw-bold mb-0">Name</h5>
+                            <p id="modal-user-code" class="text-primary small fw-bold mb-1">CODE-000</p>
                             <p id="modal-user-type" class="text-muted small mb-2">Account Type</p>
                             <div id="modal-user-status" class="mb-3"></div>
                             
+                            <div class="bg-light p-2 rounded-3 mb-3">
+                                <p class="extra-small text-muted mb-1 text-uppercase fw-bold">Performance Rating</p>
+                                <div id="modal-user-rating" class="fw-bold text-dark"></div>
+                            </div>
+
                             <div id="suspension-reason-box" class="mt-3 p-2 bg-danger-subtle rounded-3 d-none">
                                 <p class="extra-small fw-bold text-danger mb-1 text-uppercase">Reason for Suspension:</p>
                                 <p id="modal-suspension-text" class="small text-danger mb-0 italic"></p>
                             </div>
                         </div>
                         <div class="col-md-8 px-4">
-                            <h6 class="fw-bold text-uppercase small text-muted mb-3">General Information</h6>
+                            <h6 class="fw-bold text-uppercase small text-muted mb-3">Personal Information</h6>
                             <div class="row mb-3">
                                 <div class="col-6 mb-3">
                                     <p class="small text-muted mb-0">Email Address</p>
-                                    <p id="modal-user-email" class="fw-bold">email@example.com</p>
+                                    <p id="modal-user-email" class="fw-bold small">email@example.com</p>
                                 </div>
                                 <div class="col-6 mb-3">
                                     <p class="small text-muted mb-0">Phone Number</p>
-                                    <p id="modal-user-phone" class="fw-bold">+63 9XX XXX XXXX</p>
+                                    <p id="modal-user-phone" class="fw-bold small">+63 9XX XXX XXXX</p>
                                 </div>
-                                <div class="col-6">
+                                <div class="col-6 mb-3">
+                                    <p class="small text-muted mb-0">Date of Birth</p>
+                                    <p id="modal-user-dob" class="fw-bold small">---</p>
+                                </div>
+                                <div class="col-6 mb-3">
                                     <p class="small text-muted mb-0">Date Joined</p>
-                                    <p id="modal-user-joined" class="fw-bold">January 15, 2026</p>
-                                </div>
-                                <div class="col-6">
-                                    <p class="small text-muted mb-0">Skills / Specialization</p>
-                                    <p id="modal-user-skills" class="fw-bold">N/A</p>
+                                    <p id="modal-user-joined" class="fw-bold small">---</p>
                                 </div>
                             </div>
-                            <h6 class="fw-bold text-uppercase small text-muted mb-3">Work History / About</h6>
-                            <p id="modal-user-history" class="small text-secondary">No work history provided.</p>
+
+                            <h6 class="fw-bold text-uppercase small text-muted mb-3">Location & Address</h6>
+                            <div class="p-3 bg-light rounded-3 mb-4">
+                                <div class="d-flex mb-2">
+                                    <span class="material-symbols-outlined text-primary me-2 fs-5">location_on</span>
+                                    <div>
+                                        <p class="small fw-bold mb-0" id="modal-user-district">District</p>
+                                        <p class="extra-small text-muted mb-0" id="modal-user-address">Complete Address</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid mb-4">
+                                <a id="verify-docs-link" href="#" class="btn btn-primary rounded-pill">
+                                    <span class="material-symbols-outlined align-middle me-1">verified_user</span>
+                                    Verify Documents
+                                </a>
+                            </div>
                             
                             <hr class="my-4">
                             
-                            <div class="d-flex gap-2" id="modal-action-buttons">
-                                </div>
+                            <div class="d-flex gap-2" id="modal-action-buttons"></div>
                         </div>
                     </div>
                 </div>
@@ -187,7 +212,7 @@
 
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Admin Password</label>
-                        <input type="password" id="admin-pass-verify" class="form-control rounded-3" placeholder="Enter your admin password">
+                        <input type="password" id="admin-pass-verify" class="form-control rounded-3" placeholder="Enter your admin password" autocomplete="new-password">
                     </div>
                 </div>
                 <div class="modal-footer border-0">
@@ -216,7 +241,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script src="{{ asset('js/notifications.js') }}"></script>
     <script src="{{ asset('js/user-database.js') }}"></script>
 </body>

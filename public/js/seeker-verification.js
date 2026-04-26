@@ -1,143 +1,161 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. SEARCH Logic
-    const searchInput = document.getElementById('seekerSearchInput');
-    const tableBody = document.querySelector('#seekerTable tbody');
-
-    function filterTable(query) {
-        if(!tableBody) return;
-        const rows = tableBody.querySelectorAll('tr:not(.no-result-row)');
-        let visibleCount = 0;
-
-        rows.forEach(row => {
-            const nameCell = row.querySelector('.seeker-name');
-            if (nameCell) {
-                const name = nameCell.innerText.toLowerCase();
-                if (name.includes(query.toLowerCase())) {
-                    row.style.display = "";
-                    visibleCount++;
-                } else {
-                    row.style.display = "none";
+    // 1. Data Store
+    const seekersData = {
+        1: {
+            id: 1,
+            code: 'SKR-2026-0127',
+            name: 'Gojo Satoru',
+            email: 'gojo.s@jujutsu.edu',
+            location: 'Malate, Manila',
+            status: 'Pending',
+            documents: [
+                { 
+                    type: 'National ID', 
+                    status: 'Pending', 
+                    img: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/96/SatoruGojomanga.png/250px-SatoruGojomanga.png',
+                    meta: { "Full Name": "GOJO SATORU", "ID Number": "123-4567-890", "Expiry": "Dec 2030" }
+                },
+                { 
+                    type: 'NBI Clearance', 
+                    status: 'Pending', 
+                    img: 'https://i.pinimg.com/originals/a4/d7/e5/a4d7e559545cae5b2e5af5ad3e9edbd0.jpg',
+                    meta: { "Control No.": "NBI-9921-X", "Issued Date": "Jan 2026", "Remarks": "NO RECORD ON FILE" }
                 }
-            }
-        });
-
-        const existingNoResult = tableBody.querySelector('.no-result-row');
-        if (visibleCount === 0) {
-            if (!existingNoResult) {
-                const noResultRow = document.createElement('tr');
-                noResultRow.className = 'no-result-row';
-                noResultRow.innerHTML = `<td colspan="9" class="text-center py-5 text-muted">
-                    <span class="material-symbols-outlined fs-1 d-block mb-2">person_search</span>
-                    User not found in database
-                </td>`;
-                tableBody.appendChild(noResultRow);
-            }
-        } else if (existingNoResult) {
-            existingNoResult.remove();
+            ]
         }
-    }
+    };
+
+    let activeSeekerId = null;
+    let activeDocIndex = 0;
+
+    // 2. Search Functionality & Dynamic Count
+    const searchInput = document.getElementById('seekerSearchInput');
+    const userCountText = document.getElementById('user-count-text');
 
     if(searchInput) {
-        searchInput.addEventListener('input', (e) => filterTable(e.target.value));
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#seekerTable tbody tr');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const name = row.querySelector('.seeker-name').innerText.toLowerCase();
+                const code = row.querySelector('.text-primary').innerText.toLowerCase();
+                const isMatch = name.includes(query) || code.includes(query);
+                
+                row.style.display = isMatch ? '' : 'none';
+                if(isMatch) visibleCount++;
+            });
+
+            // Update footer text
+            userCountText.innerText = `Showing ${visibleCount} seekers in database`;
+        });
     }
 
-    // 2. Action Logic
-    let selectedSeeker = "";
-    let currentAction = "";
-    const confirmModalEl = document.getElementById('confirmActionModal');
-    const verificationModalEl = document.getElementById('verificationModal');
-    
-    const confirmModal = confirmModalEl ? new bootstrap.Modal(confirmModalEl) : null;
-    const verificationModal = verificationModalEl ? new bootstrap.Modal(verificationModalEl) : null;
+    // 3. Open Verification Modal
+    window.openVerificationModal = function(id) {
+        activeSeekerId = id;
+        activeDocIndex = 0;
+        const seeker = seekersData[id];
 
-    function triggerConfirm(name, action) {
-        selectedSeeker = name;
-        currentAction = action;
-        const title = document.getElementById('confirm-title');
-        const text = document.getElementById('confirm-text');
-        const iconBox = document.getElementById('confirm-icon-container');
-        const confirmBtn = document.getElementById('btn-confirm-submit');
+        document.getElementById('modalSeekerName').innerText = seeker.name;
+        document.getElementById('modalSeekerCode').innerText = seeker.code;
+        
+        renderDocumentList();
+        loadDocument(0);
 
-        if(action === 'Approve' || action === 'Verify') {
-            title.innerText = "Confirm Verification";
-            text.innerText = `Verify and approve account for ${name}?`;
-            iconBox.innerHTML = '<span class="material-symbols-outlined text-success fs-1">verified_user</span>';
-            confirmBtn.className = "btn btn-success rounded-3";
-        } else if(action === 'Reject') {
-            title.innerText = "Confirm Rejection";
-            text.innerText = `Are you sure you want to reject ${name}?`;
-            iconBox.innerHTML = '<span class="material-symbols-outlined text-danger fs-1">cancel</span>';
-            confirmBtn.className = "btn btn-danger rounded-3";
-        } else if(action === 'Clarification') {
-            title.innerText = "Request Clarification";
-            text.innerText = `Send clarification request to ${name}?`;
-            iconBox.innerHTML = '<span class="material-symbols-outlined text-warning fs-1">error</span>';
-            confirmBtn.className = "btn btn-warning rounded-3";
+        const vModal = new bootstrap.Modal(document.getElementById('verificationModal'));
+        vModal.show();
+    };
+
+    // 4. Render Sidebar Document List
+    function renderDocumentList() {
+        const listContainer = document.getElementById('documentList');
+        listContainer.innerHTML = '';
+        
+        seekersData[activeSeekerId].documents.forEach((doc, index) => {
+            const isActive = index === activeDocIndex ? 'active bg-primary-subtle border-primary' : '';
+            const statusIcon = doc.status === 'Verified' ? 'check_circle' : (doc.status === 'Rejected' ? 'cancel' : 'pending');
+            const statusClass = doc.status === 'Verified' ? 'text-success' : (doc.status === 'Rejected' ? 'text-danger' : 'text-warning');
+
+            const item = `
+                <button onclick="loadDocument(${index})" class="list-group-item list-group-item-action border-0 rounded-3 mb-2 d-flex justify-content-between align-items-center ${isActive}">
+                    <div class="small fw-bold">${doc.type}</div>
+                    <span class="material-symbols-outlined fs-6 ${statusClass}">${statusIcon}</span>
+                </button>
+            `;
+            listContainer.insertAdjacentHTML('beforeend', item);
+        });
+    }
+
+    // 5. Load Specific Document Preview
+    window.loadDocument = function(index) {
+        activeDocIndex = index;
+        const doc = seekersData[activeSeekerId].documents[index];
+        
+        document.getElementById('docImagePreview').src = doc.img;
+        
+        const metaContainer = document.getElementById('metadataFields');
+        metaContainer.innerHTML = '';
+        
+        for (const [key, value] of Object.entries(doc.meta)) {
+            metaContainer.innerHTML += `
+                <div class="d-flex justify-content-between mb-2 pb-1 border-bottom">
+                    <span class="extra-small text-muted text-uppercase">${key}</span>
+                    <span class="small fw-bold">${value}</span>
+                </div>
+            `;
         }
-        confirmModal.show();
+        renderDocumentList();
+    };
+
+    // 6. Process Verification/Rejection
+    window.processDoc = function(action) {
+        if(action === 'verify') {
+            seekersData[activeSeekerId].documents[activeDocIndex].status = 'Verified';
+            showSuccess(`Document "${seekersData[activeSeekerId].documents[activeDocIndex].type}" approved.`);
+            renderDocumentList();
+            checkOverallStatus();
+        } else {
+            const rModal = new bootstrap.Modal(document.getElementById('rejectReasonModal'));
+            rModal.show();
+        }
+    };
+
+    window.confirmRejection = function() {
+        const reason = document.getElementById('rejectReasonSelect').value;
+        
+        seekersData[activeSeekerId].documents[activeDocIndex].status = 'Rejected';
+        seekersData[activeSeekerId].status = 'Rejected';
+        
+        bootstrap.Modal.getInstance(document.getElementById('rejectReasonModal')).hide();
+        showSuccess(`Document rejected: ${reason}`);
+        
+        updateTableStatus('Rejected');
+        renderDocumentList();
+    };
+
+    function checkOverallStatus() {
+        const allVerified = seekersData[activeSeekerId].documents.every(d => d.status === 'Verified');
+        if(allVerified) {
+            seekersData[activeSeekerId].status = 'Verified';
+            updateTableStatus('Verified');
+            showSuccess(`All documents verified. Seeker is now Verified.`);
+        }
     }
 
-    document.querySelectorAll('.action-approve-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const name = e.target.closest('tr').querySelector('.seeker-name').innerText;
-            triggerConfirm(name, 'Approve');
-        });
-    });
-
-    document.querySelectorAll('.action-reject-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const name = e.target.closest('tr').querySelector('.seeker-name').innerText;
-            triggerConfirm(name, 'Reject');
-        });
-    });
-
-    const verifyBtn = document.getElementById('btn-verify-seeker');
-    if(verifyBtn) {
-        verifyBtn.addEventListener('click', function() {
-            const name = document.getElementById('modalSeekerName').innerText;
-            if(verificationModal) verificationModal.hide();
-            triggerConfirm(name, 'Verify');
-        });
+    function updateTableStatus(status) {
+        const badge = document.querySelector('.seeker-status');
+        badge.innerText = status;
+        if(status === 'Verified') badge.className = "badge bg-success-subtle text-success border border-success px-3 seeker-status";
+        if(status === 'Rejected') badge.className = "badge bg-danger-subtle text-danger border border-danger px-3 seeker-status";
     }
 
-    const clarifyBtn = document.getElementById('btn-request-clarification');
-    if(clarifyBtn) {
-        clarifyBtn.addEventListener('click', function() {
-            const notes = document.getElementById('adminNotesText').value.trim();
-            const name = document.getElementById('modalSeekerName').innerText;
-            if (notes === "") {
-                alert("Please provide clarification details in the Verification Notes.");
-                document.getElementById('adminNotesText').focus();
-                return;
-            }
-            if(verificationModal) verificationModal.hide();
-            triggerConfirm(name, 'Clarification');
-        });
-    }
-
-    const finalSubmit = document.getElementById('btn-confirm-submit');
-    if(finalSubmit) {
-        finalSubmit.addEventListener('click', function() {
-            confirmModal.hide();
-            const alertBox = document.getElementById('js-success-alert');
-            const alertMsg = document.getElementById('alert-message');
-            alertBox.classList.remove('d-none');
-            
-            if(currentAction === 'Approve' || currentAction === 'Verify') {
-                alertMsg.innerText = `Seeker ${selectedSeeker} is now verified successfully.`;
-                document.querySelectorAll('tr').forEach(row => {
-                    const nameCell = row.querySelector('.seeker-name');
-                    if(nameCell && nameCell.innerText === selectedSeeker) {
-                        const statusBadge = row.querySelector('.seeker-status');
-                        statusBadge.innerText = "Verified";
-                        statusBadge.className = "badge rounded-pill bg-success text-white seeker-status";
-                    }
-                });
-            } else if(currentAction === 'Clarification') {
-                alertMsg.innerText = `Clarification request sent to ${selectedSeeker}.`;
-            }
-            setTimeout(() => { alertBox.classList.add('d-none'); }, 4000);
-        });
+    function showSuccess(msg) {
+        const alertBox = document.getElementById('js-success-alert');
+        document.getElementById('alert-message').innerText = msg;
+        alertBox.classList.remove('d-none');
+        setTimeout(() => alertBox.classList.add('d-none'), 3000);
     }
 
     // Call shared notification renderer
