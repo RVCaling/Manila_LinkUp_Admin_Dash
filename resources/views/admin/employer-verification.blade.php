@@ -142,7 +142,8 @@
                         <div class="col-md-3 border-end">
                             <h6 class="fw-bold mb-3 small text-uppercase">Submitted Documents</h6>
                             <div class="list-group list-group-flush" id="documentList">
-                                <button type="button" class="list-group-item list-group-item-action active rounded-3 mb-2 border-0" data-doc-src="https://via.placeholder.com/600x800?text=Business+Permit+2026">
+                                <button type="button" class="list-group-item list-group-item-action active rounded-3 mb-2 border-0" 
+                                data-doc-src="https://static0.cbrimages.com/wordpress/wp-content/uploads/2023/12/nanami-kento-jujutsu-kaisen.jpg?w=1200&h=675&fit=crop">
                                     <div class="d-flex align-items-center">
                                         <span class="material-symbols-outlined me-2 fs-5">article</span>
                                         <div>

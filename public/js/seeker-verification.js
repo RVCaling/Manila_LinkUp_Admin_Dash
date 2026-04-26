@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 { 
                     type: 'NBI Clearance', 
                     status: 'Pending', 
-                    img: 'https://via.placeholder.com/400x500?text=NBI+Clearance+Sample',
+                    img: 'https://i.pinimg.com/originals/a4/d7/e5/a4d7e559545cae5b2e5af5ad3e9edbd0.jpg',
                     meta: { "Control No.": "NBI-9921-X", "Issued Date": "Jan 2026", "Remarks": "NO RECORD ON FILE" }
                 }
             ]
