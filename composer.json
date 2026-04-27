@@ -7,6 +7,9 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "google/cloud-firestore": "^2.0",
+        "google/protobuf": "^5.34",
+        "grpc/grpc": "^1.80",
         "kreait/laravel-firebase": "^6.2",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
