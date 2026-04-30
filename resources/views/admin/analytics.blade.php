@@ -44,10 +44,13 @@
                     </ul>
                 </div>
 
-                <button class="btn btn-white bg-white border shadow-sm rounded-pill px-3 py-2 small fw-bold">
-                    <span class="material-symbols-outlined align-middle fs-5">calendar_month</span> Last 30 Days
+                <button id="dateFilterBtn" class="btn btn-white bg-white border shadow-sm rounded-pill px-3 py-2 small fw-bold" onclick="toggleDateFilter()">
+                    <span class="material-symbols-outlined align-middle fs-5">calendar_month</span> 
+                    <span id="filterText">Last 30 Days</span>
                 </button>
-                <button class="btn btn-primary shadow-sm rounded-pill px-3 py-2 small fw-bold" style="background-color: #1B3E9C;">
+ 
+                <button class="btn btn-primary shadow-sm rounded-pill px-3 py-2 small fw-bold" 
+                        style="background-color: #1B3E9C;" onclick="exportData()">
                     <span class="material-symbols-outlined align-middle fs-5">file_download</span> Export
                 </button>
             </div>
@@ -86,7 +89,7 @@
         <div class="row g-4">
             <div class="col-lg-4">
                 <div class="bg-white p-4 rounded-4 shadow-sm h-100">
-                    <h5 class="fw-bold mb-4">Users by District</h5>
+                    <h5 class="fw-bold mb-4">Trending Jobs</h5>
                     <div class="chart-container" style="position: relative; height:250px;">
                         <canvas id="districtChart"></canvas>
                     </div>

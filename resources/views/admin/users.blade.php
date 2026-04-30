@@ -30,21 +30,28 @@
             
             <div class="d-flex align-items-center">
                 <div class="dropdown">
-                    <div class="notification-wrapper me-4 position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="material-symbols-outlined fs-2 text-muted" style="cursor: pointer;">notifications</span>
-                        <span id="notif-count" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger border border-light" style="padding: 5px; font-size: 10px;">0</span>
+                    <div class="notification-wrapper me-4 position-relative" id="notificationDropdown" 
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="material-symbols-outlined fs-2 text-muted" 
+                        style="cursor: pointer;">notifications</span>
+                        <span id="notif-count" class="position-absolute top-0 start-100 translate-middle 
+                        badge rounded-circle bg-danger border border-light" 
+                        style="padding: 5px; font-size: 10px;">0</span>
                     </div>
                     
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-0 mt-2" aria-labelledby="notificationDropdown" style="width: 320px; overflow: hidden;">
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-0 mt-2" 
+                    aria-labelledby="notificationDropdown" style="width: 320px; overflow: hidden;">
                         <li class="p-3 border-bottom">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h6 class="fw-bold mb-0">Notifications</h6>
-                                <button class="btn btn-sm text-primary p-0 extra-small" onclick="clearNotifications()">Mark all as read</button>
+                                <button class="btn btn-sm text-primary p-0 
+                                extra-small" onclick="clearNotifications()">Mark all as read</button>
                             </div>
                         </li>
                         <div id="notification-list" style="max-height: 350px; overflow-y: auto;"></div>
                         <li class="p-2 text-center border-top">
-                            <a href="#" class="text-muted extra-small text-decoration-none" data-bs-toggle="modal" data-bs-target="#alertsModal">View all alerts</a>
+                            <a href="#" class="text-muted extra-small text-decoration-none" 
+                            data-bs-toggle="modal" data-bs-target="#alertsModal">View all alerts</a>
                         </li>
                     </ul>
                 </div>
@@ -117,7 +124,8 @@
                 <div class="modal-body p-4">
                     <div class="row">
                         <div class="col-md-4 text-center border-end">
-                            <img id="modal-user-img" src="https://via.placeholder.com/150" class="rounded-circle mb-3 border p-1" style="width: 120px; height: 120px; object-fit: cover;">
+                            <img id="modal-user-img" src="https://via.placeholder.com/150" 
+                            class="rounded-circle mb-3 border p-1" style="width: 120px; height: 120px; object-fit: cover;">
                             <h5 id="modal-user-name" class="fw-bold mb-0">Name</h5>
                             <p id="modal-user-code" class="text-primary small fw-bold mb-1">CODE-000</p>
                             <p id="modal-user-type" class="text-muted small mb-2">Account Type</p>
@@ -231,7 +239,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="p-3 border-bottom d-flex justify-content-end">
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 extra-small" onclick="clearNotifications()">Mark all as read</button>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 
+                    extra-small" onclick="clearNotifications()">Mark all as read</button>
                 </div>
                 <div class="modal-body p-0">
                     <div id="modal-alerts-list"></div>

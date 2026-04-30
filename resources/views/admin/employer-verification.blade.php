@@ -22,26 +22,34 @@
                 <p class="text-muted small">Review business permits and verify company accounts.</p>
             </div>
             <div class="d-flex align-items-center">
-                <div class="dropdown">
-                    <div class="notification-wrapper position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="material-symbols-outlined fs-2 text-muted" style="cursor: pointer;">notifications</span>
-                        <span id="notif-count" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger border border-light" style="padding: 5px; font-size: 10px;">0</span>
-                    </div>
-                    
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-0 mt-2" aria-labelledby="notificationDropdown" style="width: 320px; overflow: hidden;">
-                        <li class="p-3 border-bottom">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="fw-bold mb-0">Notifications</h6>
-                                <button class="btn btn-sm text-primary p-0 extra-small" onclick="clearNotifications()">Mark all as read</button>
-                            </div>
-                        </li>
-                        <div id="notification-list" style="max-height: 350px; overflow-y: auto;"></div>
-                        <li class="p-2 text-center border-top">
-                            <a href="#" class="text-muted extra-small text-decoration-none" data-bs-toggle="modal" data-bs-target="#alertsModal">View all alerts</a>
-                        </li>
-                    </ul>
+    <div class="dropdown">
+        <!-- Added 'me-4' and 'position-relative' to match users.blade.php -->
+        <div class="notification-wrapper me-4 position-relative" id="notificationDropdown" 
+             data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="material-symbols-outlined fs-2 text-muted" 
+                  style="cursor: pointer;">notifications</span>
+            <span id="notif-count" class="position-absolute top-0 start-100 translate-middle 
+                  badge rounded-circle bg-danger border border-light" 
+                  style="padding: 5px; font-size: 10px;">0</span>
+        </div>
+        
+        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-0 mt-2" 
+            aria-labelledby="notificationDropdown" style="width: 320px; overflow: hidden;">
+            <li class="p-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0">Notifications</h6>
+                    <button class="btn btn-sm text-primary p-0 
+                            extra-small" onclick="clearNotifications()">Mark all as read</button>
                 </div>
-            </div>
+            </li>
+            <div id="notification-list" style="max-height: 350px; overflow-y: auto;"></div>
+            <li class="p-2 text-center border-top">
+                <a href="#" class="text-muted extra-small text-decoration-none" 
+                   data-bs-toggle="modal" data-bs-target="#alertsModal">View all alerts</a>
+            </li>
+        </ul>
+    </div>
+</div>
         </div>
 
         <div id="js-success-alert" class="alert alert-success border-0 shadow-sm rounded-3 mb-4 d-none" role="alert">
