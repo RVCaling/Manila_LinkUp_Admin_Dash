@@ -6,7 +6,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SeekerController;
 use App\Http\Controllers\Admin\EmployerController;
 use App\Http\Controllers\Admin\AnalyticsController;
-use App\Http\Controllers\Admin\ProfileController; // <--- ADDED THIS
+use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\VerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Analytics
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
+
+    // Verification actions
+    Route::post('/{type}/{uid}/verify', [VerificationController::class, 'verify'])->name('verify');
+    Route::post('/{type}/{uid}/reject', [VerificationController::class, 'reject'])->name('reject');
 
     // --- Admin Profile Routes ---
     // 1. Route to view the profile

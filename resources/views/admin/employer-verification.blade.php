@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Manila LinkUp | Employer Verification</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -80,44 +81,38 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse($employers as $num => $employer)
                             <tr>
-                                <td class="text-muted fw-bold small">1</td> 
-                                <td class="small fw-bold text-primary">EMP-2026-001</td>
-                                <td class="fw-bold entity-name">Manila Tech Solutions</td>
-                                <td><span class="text-dark small">Business Permit, NBI</span></td>
-                                <td class="text-muted">Kento Nanami</td>
-                                <td><span class="badge rounded-pill text-primary" style="background-color: #e7f0ff;">IT Services</span></td>
-                                <td>Intramuros, Manila</td>
+                                <td class="text-muted fw-bold small">{{ $num }}</td>
+                                <td class="small fw-bold text-primary">{{ $employer['code'] }}</td>
+                                <td class="fw-bold entity-name">{{ $employer['name'] }}</td>
+                                <td><span class="text-dark small">{{ $employer['docs'] }}</span></td>
+                                <td class="text-muted">{{ $employer['contact'] }}</td>
+                                <td><span class="badge rounded-pill text-primary" style="background-color: #e7f0ff;">{{ $employer['industry'] }}</span></td>
+                                <td>{{ $employer['location'] }}</td>
                                 <td class="text-center">
-                                    <button class="btn btn-outline-dark btn-sm rounded-3 px-3 view-docs-btn" 
-                                    data-bs-toggle="modal" data-bs-target="#verificationModal">
-                                        <span class="material-symbols-outlined fs-6 align-middle me-1">description</span> 
+                                    <button class="btn btn-outline-dark btn-sm rounded-3 px-3 view-docs-btn"
+                                        data-bs-toggle="modal" data-bs-target="#verificationModal"
+                                        data-uid="{{ $employer['uid'] }}"
+                                        data-name="{{ $employer['name'] }}"
+                                        data-valid-id="{{ $employer['validIdUrl'] }}"
+                                        data-clearance="{{ $employer['clearanceUrl'] }}">
+                                        <span class="material-symbols-outlined fs-6 align-middle me-1">description</span>
                                         Review Documents
                                     </button>
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td class="text-muted fw-bold small">2</td>
-                                <td class="small fw-bold text-primary">EMP-2026-042</td>
-                                <td class="fw-bold entity-name">Binondo Logistics Corp</td>
-                                <td><span class="text-dark small">National ID, DTI</span></td>
-                                <td class="text-muted">Enrile Ponce</td>
-                                <td><span class="badge rounded-pill text-primary" style="background-color: #e7f0ff;">Logistics</span></td>
-                                <td>Binondo, Manila</td>
-                                <td class="text-center">
-                                    <button class="btn btn-outline-dark btn-sm rounded-3 px-3 view-docs-btn" 
-                                    data-bs-toggle="modal" data-bs-target="#verificationModal">
-                                        <span class="material-symbols-outlined fs-6 align-middle me-1">description</span> 
-                                        Review Documents
-                                    </button>
-                                </td>
+                                <td colspan="8" class="text-center py-4 text-muted">No pending verifications.</td>
                             </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mt-4">
-                    <p class="text-muted small mb-0" id="user-count-text">Showing 2 employers in database</p>
+                    <p class="text-muted small mb-0" id="user-count-text">Showing {{ count($employers) }} employers in database</p>
                     <nav aria-label="Page navigation">
                         <ul class="pagination pagination-sm mb-0">
                             <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>

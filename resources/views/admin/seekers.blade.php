@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Manila LinkUp | Seeker Verification</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -84,25 +85,31 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse($seekers as $num => $seeker)
                             <tr>
-                                <td class="text-muted fw-bold small">1</td>
-                                <td class="small fw-bold text-primary">SKR-2026-0127</td>
-                                <td class="fw-bold seeker-name">Gojo Satoru</td>
-                                <td class="text-muted small">gojo.s@jujutsu.edu</td>
-                                <td class="small text-muted">National ID, NBI</td>
+                                <td class="text-muted fw-bold small">{{ $num }}</td>
+                                <td class="small fw-bold text-primary">{{ $seeker['code'] }}</td>
+                                <td class="fw-bold seeker-name">{{ $seeker['name'] }}</td>
+                                <td class="text-muted small">{{ $seeker['email'] }}</td>
+                                <td class="small text-muted">{{ $seeker['docs'] }}</td>
                                 <td><span class="badge bg-warning-subtle text-warning border border-warning px-3 seeker-status">Pending</span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-outline-dark btn-sm rounded-3 px-3" onclick="openVerificationModal(1)">
+                                    <button class="btn btn-outline-dark btn-sm rounded-3 px-3" onclick="openVerificationModal({{ $num }})">
                                         <span class="material-symbols-outlined fs-6 align-middle me-1">description</span>Review Documents
                                     </button>
                                 </td>
                             </tr>
+                            @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">No pending verifications.</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mt-4">
-                    <p class="text-muted small mb-0" id="user-count-text">Showing 1 seekers in database</p>
+                    <p class="text-muted small mb-0" id="user-count-text">Showing {{ count($seekers) }} seekers in database</p>
                     <nav aria-label="Page navigation">
                         <ul class="pagination pagination-sm mb-0">
                             <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
@@ -214,6 +221,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/notifications.js') }}"></script>
+    <script>window.seekersData = @json($seekersModal);</script>
     <script src="{{ asset('js/seeker-verification.js') }}"></script>
 </body>
 </html>

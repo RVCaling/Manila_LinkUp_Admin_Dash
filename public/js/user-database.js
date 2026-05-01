@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 1. Data Store
-    const usersData = {
+    const usersData = window.usersData ?? {
         1: { 
             id: 1, 
             code: 'SKR-2026-0001',
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
             address: '456 Quintin Paredes St., Binondo, Manila City',
             img: 'https://i.pravatar.cc/150?u=mark', 
             suspensionReason: 'Policy Violation: Excessive job cancellations.', 
-            needs: 'Reason: Policy Violation' 
+            needs: 'Reason: Policy Violation'
         }
     };
 

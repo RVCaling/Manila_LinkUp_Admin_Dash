@@ -3,17 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Services\ApiService;
 
 class AnalyticsController extends Controller
 {
-    /**
-     * Display the analytics dashboard.
-     */
     public function index()
     {
-        // When you connect Firebase, you will fetch the counts here 
-        // and pass them to the view using compact()
-        return view('admin.analytics');
+        $api        = app(ApiService::class);
+        $overview   = $api->get('/admin/analytics/overview')['data'] ?? [];
+        $usersStats = $api->get('/admin/analytics/users')['data'] ?? [];
+
+        return view('admin.analytics', compact('overview', 'usersStats'));
     }
 }

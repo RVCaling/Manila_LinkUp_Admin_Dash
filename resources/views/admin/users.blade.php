@@ -251,6 +251,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/notifications.js') }}"></script>
+    <script>window.usersData = @json($users);</script>
     <script src="{{ asset('js/user-database.js') }}"></script>
 </body>
 </html>
