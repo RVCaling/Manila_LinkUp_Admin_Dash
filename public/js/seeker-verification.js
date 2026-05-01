@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // 1. Data Store
-    const seekersData = {
+    const seekersData = window.seekersData ?? {
         1: {
             id: 1,
             code: 'SKR-2026-0127',
@@ -109,6 +109,15 @@ document.addEventListener('DOMContentLoaded', function() {
         renderDocumentList();
     };
 
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    function callVerificationApi(url) {
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+        });
+    }
+
     // 6. Process Verification/Rejection
     window.processDoc = function(action) {
         if(action === 'verify') {
@@ -124,23 +133,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.confirmRejection = function() {
         const reason = document.getElementById('rejectReasonSelect').value;
-        
+        const uid    = seekersData[activeSeekerId].uid;
+
         seekersData[activeSeekerId].documents[activeDocIndex].status = 'Rejected';
         seekersData[activeSeekerId].status = 'Rejected';
-        
+
         bootstrap.Modal.getInstance(document.getElementById('rejectReasonModal')).hide();
         showSuccess(`Document rejected: ${reason}`);
-        
         updateTableStatus('Rejected');
         renderDocumentList();
+
+        callVerificationApi(`/admin/seekers/${uid}/reject`);
     };
 
     function checkOverallStatus() {
         const allVerified = seekersData[activeSeekerId].documents.every(d => d.status === 'Verified');
         if(allVerified) {
+            const uid = seekersData[activeSeekerId].uid;
             seekersData[activeSeekerId].status = 'Verified';
             updateTableStatus('Verified');
             showSuccess(`All documents verified. Seeker is now Verified.`);
+
+            callVerificationApi(`/admin/seekers/${uid}/verify`);
         }
     }
 

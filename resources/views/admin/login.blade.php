@@ -28,16 +28,18 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.login.submit') }}" method="POST">
+            <form id="loginForm" action="{{ route('admin.login.submit') }}" method="POST">
                 @csrf
-                
+                <input type="hidden" name="id_token" id="id_token">
+                <input type="hidden" name="refresh_token" id="refresh_token">
+
                 <div class="mb-3">
                     <label class="form-label small fw-bold text-muted">Email Address</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0">
                             <span class="material-symbols-outlined fs-5 text-muted">mail</span>
                         </span>
-                        <input type="email" name="email" value="{{ old('email') }}" class="form-control bg-light border-start-0" placeholder="admin@manilalinkup.ph" required autofocus>
+                        <input type="email" name="email" id="email" value="{{ old('email') }}" class="form-control bg-light border-start-0" placeholder="admin@manilalinkup.ph" required autofocus>
                     </div>
                 </div>
 
@@ -50,8 +52,13 @@
                         <span class="input-group-text bg-light border-end-0">
                             <span class="material-symbols-outlined fs-5 text-muted">lock</span>
                         </span>
-                        <input type="password" name="password" class="form-control bg-light border-start-0" placeholder="••••••••" required>
+                        <input type="password" name="password" id="password" class="form-control bg-light border-start-0" placeholder="••••••••" required>
                     </div>
+                </div>
+
+                <div id="login-error" class="alert alert-danger py-2 small text-center mb-3 border-0 shadow-sm d-none" role="alert">
+                    <span class="material-symbols-outlined fs-6 align-middle">error</span>
+                    <span id="login-error-msg"></span>
                 </div>
 
                 <div class="mb-3 form-check">
@@ -59,7 +66,7 @@
                     <label class="form-check-label small text-muted" for="remember">Keep me logged in</label>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm mb-3" style="background-color: #1B3E9C;">
+                <button type="submit" id="loginBtn" class="btn btn-primary w-100 py-2 fw-bold shadow-sm mb-3" style="background-color: #1B3E9C;">
                     Sign In
                 </button>
 
@@ -77,5 +84,52 @@
         </p>
     </div>
 
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js';
+
+        const app = initializeApp({
+            apiKey:     '{{ env("FIREBASE_WEB_API_KEY") }}',
+            authDomain: 'manilalinkup.firebaseapp.com',
+            projectId:  'manilalinkup',
+        });
+
+        const auth = getAuth(app);
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn      = document.getElementById('loginBtn');
+            const errorBox = document.getElementById('login-error');
+            const errorMsg = document.getElementById('login-error-msg');
+            const email    = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            btn.disabled    = true;
+            btn.textContent = 'Signing in…';
+            errorBox.classList.add('d-none');
+
+            try {
+                const credential = await signInWithEmailAndPassword(auth, email, password);
+                const idToken    = await credential.user.getIdToken();
+
+                document.getElementById('id_token').value      = idToken;
+                document.getElementById('refresh_token').value = credential.user.stsTokenManager.refreshToken;
+
+                e.target.submit();
+            } catch (err) {
+                btn.disabled    = false;
+                btn.textContent = 'Sign In';
+                errorBox.classList.remove('d-none');
+
+                const msgs = {
+                    'auth/invalid-credential':    'Invalid email or password.',
+                    'auth/user-disabled':          'This account has been disabled.',
+                    'auth/too-many-requests':      'Too many attempts. Try again later.',
+                };
+                errorMsg.textContent = msgs[err.code] ?? 'Sign in failed. Please try again.';
+            }
+        });
+    </script>
 </body>
 </html>

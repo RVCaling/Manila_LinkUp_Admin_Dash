@@ -69,19 +69,30 @@ document.addEventListener('DOMContentLoaded', function() {
     // 4. Verification & Rejection Logic
     const viewModal = new bootstrap.Modal(document.getElementById('verificationModal'));
     const rejectModal = new bootstrap.Modal(document.getElementById('rejectReasonModal'));
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     let currentEmployerName = "";
+    let currentEmployerUid  = "";
+
+    function callVerificationApi(url) {
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+        });
+    }
 
     // Open Main Modal
     document.addEventListener('click', function(e) {
-        if (e.target.closest('.view-docs-btn')) {
-            const row = e.target.closest('tr');
-            currentEmployerName = row.querySelector('.entity-name').innerText;
+        const btn = e.target.closest('.view-docs-btn');
+        if (btn) {
+            currentEmployerUid  = btn.getAttribute('data-uid');
+            currentEmployerName = btn.getAttribute('data-name');
             document.getElementById('modalEntityName').innerText = currentEmployerName;
         }
     });
 
     // Handle Approval
     document.getElementById('btn-verify-entity').addEventListener('click', () => {
+        callVerificationApi(`/admin/employers/${currentEmployerUid}/verify`);
         showSuccessAlert(`${currentEmployerName} has been successfully verified.`);
         viewModal.hide();
     });
@@ -107,7 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btn-confirm-reject').addEventListener('click', () => {
         const reason = reasonSelect.value === 'other' ? otherText.value : reasonSelect.value;
         if(!reason) { alert("Please provide a reason"); return; }
-        
+
+        callVerificationApi(`/admin/employers/${currentEmployerUid}/reject`);
         rejectModal.hide();
         showSuccessAlert(`${currentEmployerName} verification rejected: ${reason}`);
     });

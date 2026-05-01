@@ -59,28 +59,28 @@
         <div class="row g-3 mb-4">
             <div class="col-md-4">
                 <div class="bg-white p-4 rounded-4 shadow-sm border-start border-indigo border-4">
-                    <p class="text-muted small fw-bold mb-1">User Retention Rate</p>
+                    <p class="text-muted small fw-bold mb-1">Total Users</p>
                     <div class="d-flex align-items-end gap-2">
-                        <h2 class="fw-bold mb-0">84.2%</h2>
-                        <small class="text-success fw-bold mb-1"><span class="material-symbols-outlined fs-6 align-middle">trending_up</span> +2.4%</small>
+                        <h2 class="fw-bold mb-0">{{ ($usersStats['totalSeekers'] ?? 0) + ($usersStats['totalEmployers'] ?? 0) }}</h2>
+                        <small class="text-muted small mb-1">{{ $usersStats['totalSeekers'] ?? 0 }} seekers · {{ $usersStats['totalEmployers'] ?? 0 }} employers</small>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="bg-white p-4 rounded-4 shadow-sm border-start border-teal border-4">
-                    <p class="text-muted small fw-bold mb-1">Avg. Verification Time</p>
+                    <p class="text-muted small fw-bold mb-1">Active Jobs</p>
                     <div class="d-flex align-items-end gap-2">
-                        <h2 class="fw-bold mb-0">4.5h</h2>
-                        <small class="text-success fw-bold mb-1"><span class="material-symbols-outlined fs-6 align-middle">bolt</span> -1.2h</small>
+                        <h2 class="fw-bold mb-0">{{ $overview['activeJobs'] ?? 0 }}</h2>
+                        <small class="text-muted small mb-1">of {{ $overview['totalJobs'] ?? 0 }} total</small>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="bg-white p-4 rounded-4 shadow-sm border-start border-coral border-4">
-                    <p class="text-muted small fw-bold mb-1">Job Match Success</p>
+                    <p class="text-muted small fw-bold mb-1">Total Hired</p>
                     <div class="d-flex align-items-end gap-2">
-                        <h2 class="fw-bold mb-0">1,240</h2>
-                        <small class="text-muted small mb-1">Total Hired</small>
+                        <h2 class="fw-bold mb-0">{{ $overview['totalHires'] ?? 0 }}</h2>
+                        <small class="text-muted small mb-1">from {{ $overview['totalApplications'] ?? 0 }} applications</small>
                     </div>
                 </div>
             </div>
