@@ -46,7 +46,6 @@
                 <div class="mb-4">
                     <div class="d-flex justify-content-between">
                         <label class="form-label small fw-bold text-muted">Password</label>
-                        <a href="#" class="small text-decoration-none" style="color: #1B3E9C;">Forgot?</a>
                     </div>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0">
@@ -70,12 +69,6 @@
                     Sign In
                 </button>
 
-                <div class="text-center">
-                    <a href="/" class="text-muted small text-decoration-none d-flex align-items-center justify-content-center">
-                        <span class="material-symbols-outlined fs-6 me-1">arrow_back</span>
-                        Back to Homepage
-                    </a>
-                </div>
             </form>
         </div>
         
