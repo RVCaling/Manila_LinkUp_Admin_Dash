@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
             verifyTime: "4.5h",
             verifyTrend: "-1.2h",
             matches: "1,240",
-            jobCounts: [450, 380, 310, 290, 240, 180]
         },
         'Last 7 Days': {
             retention: "81.5%",
@@ -28,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
             verifyTime: "3.2h",
             verifyTrend: "-0.5h",
             matches: "312",
-            jobCounts: [120, 95, 80, 70, 60, 40]
         },
         'Last 24 Hours': {
             retention: "88.1%",
@@ -36,9 +34,12 @@ document.addEventListener('DOMContentLoaded', function() {
             verifyTime: "1.5h",
             verifyTrend: "-0.2h",
             matches: "45",
-            jobCounts: [15, 12, 10, 8, 5, 2]
         }
     };
+
+    const tagData   = window.trendingTags || [];
+    const jobLabels = tagData.map(t => t.label);
+    const jobCounts = tagData.map(t => t.jobCount);
 
     const yearlyGrowth = {
         '2026': {
@@ -51,7 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    const jobLabels = ['Delivery/Courier', 'Elderly Care', 'Household Help', 'Tutor', 'Cashiering', 'Pet Care'];
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
 
     let jobChart, growthChart;
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     labels: jobLabels,
                     datasets: [{
                         label: 'Postings',
-                        data: dashboardData['Last 30 Days'].jobCounts,
+                        data: jobCounts,
                         backgroundColor: Object.values(analyticsPalette),
                         borderRadius: 6,
                         barThickness: 15
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 options: { responsive: true, maintainAspectRatio: false }
             });
         }
-        updateLegend('Last 30 Days');
+        updateLegend();
     }
 
     // ==========================================
@@ -116,22 +116,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.querySelector('.border-coral h2').innerText = data.matches;
 
-        // Update Job Chart
-        jobChart.data.datasets[0].data = data.jobCounts;
-        jobChart.update();
-
-        // Update Legend
-        updateLegend(filter);
-
         // Update Button UI
         document.getElementById('filterText').innerText = filter;
     };
 
-    function updateLegend(filter) {
+    function updateLegend() {
         const legendBox = document.getElementById('district-legend');
-        const counts = dashboardData[filter].jobCounts;
         if (legendBox) {
-            legendBox.innerHTML = ''; 
+            legendBox.innerHTML = '';
             jobLabels.forEach((label, i) => {
                 legendBox.innerHTML += `
                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -139,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div style="width:8px; height:8px; border-radius:2px; background:${Object.values(analyticsPalette)[i]}"></div>
                             <span class="small text-muted" style="font-size: 0.75rem;">${label}</span>
                         </div>
-                        <span class="small fw-bold" style="font-size: 0.75rem;">${counts[i]}</span>
+                        <span class="small fw-bold" style="font-size: 0.75rem;">${jobCounts[i]}</span>
                     </div>`;
             });
         }

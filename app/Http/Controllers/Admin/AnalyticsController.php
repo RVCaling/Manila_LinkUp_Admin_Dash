@@ -13,6 +13,15 @@ class AnalyticsController extends Controller
         $overview   = $api->get('/admin/analytics/overview')['data'] ?? [];
         $usersStats = $api->get('/admin/analytics/users')['data'] ?? [];
 
-        return view('admin.analytics', compact('overview', 'usersStats'));
+        $tags        = $api->get('/admin/analytics/tags')['data'] ?? [];
+        $serviceTags = $api->get('/service-tags')['data'] ?? [];
+        $tagLabels   = collect($serviceTags)->keyBy('id')->map(fn($t) => $t['label'])->toArray();
+
+        $trendingTags = collect($tags)->take(6)->map(fn($t) => [
+            'label'    => $tagLabels[$t['tag']] ?? $t['tag'],
+            'jobCount' => $t['jobCount'],
+        ])->values()->toArray();
+
+        return view('admin.analytics', compact('overview', 'usersStats', 'trendingTags'));
     }
 }

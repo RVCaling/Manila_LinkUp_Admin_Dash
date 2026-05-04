@@ -134,6 +134,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script src="{{ asset('js/notifications.js') }}"></script>
+    <script>
+        window.trendingTags = @json($trendingTags);
+    </script>
     <script src="{{ asset('js/analytics.js') }}"></script>
 </body>
 </html>
