@@ -19,7 +19,7 @@ class VerificationController extends Controller
                 ?: 'N/A';
 
             $pending[] = [
-                'uid'          => $item['id'],
+                'uid'          => $item['uid'],
                 'name'         => $name,
                 'type'         => $item['userType'] ?? 'seeker',
                 'submittedAt'  => $item['updatedAt'] ?? null,

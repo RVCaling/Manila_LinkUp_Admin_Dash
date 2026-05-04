@@ -144,32 +144,12 @@
                     <div class="row g-4">
                         <div class="col-md-3 border-end">
                             <h6 class="fw-bold mb-3 small text-uppercase">Submitted Documents</h6>
-                            <div class="list-group list-group-flush" id="documentList">
-                                <button type="button" class="list-group-item list-group-item-action active rounded-3 mb-2 border-0" 
-                                data-doc-src="https://static0.cbrimages.com/wordpress/wp-content/uploads/2023/12/nanami-kento-jujutsu-kaisen.jpg?w=1200&h=675&fit=crop">
-                                    <div class="d-flex align-items-center">
-                                        <span class="material-symbols-outlined me-2 fs-5">article</span>
-                                        <div>
-                                            <div class="small fw-bold">Business Permit</div>
-                                            <div class="extra-small text-muted">Uploaded: 04/20/26</div>
-                                        </div>
-                                    </div>
-                                </button>
-                                <button type="button" class="list-group-item list-group-item-action rounded-3 mb-2 border-0" data-doc-src="https://via.placeholder.com/600x800?text=DTI+Registration+Form">
-                                    <div class="d-flex align-items-center">
-                                        <span class="material-symbols-outlined me-2 fs-5">assignment_ind</span>
-                                        <div>
-                                            <div class="small fw-bold">DTI Registration</div>
-                                            <div class="extra-small text-muted">Uploaded: 04/20/26</div>
-                                        </div>
-                                    </div>
-                                </button>
-                            </div>
+                            <div class="list-group list-group-flush" id="documentList"></div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="bg-black rounded-4 p-2 d-flex align-items-center justify-content-center overflow-hidden" style="min-height: 500px; max-height: 600px;">
-                                <img src="https://via.placeholder.com/600x800?text=Business+Permit+2026" id="docImagePreview" class="img-fluid rounded-3" alt="Document">
+                                <img src="" id="docImagePreview" class="img-fluid rounded-3" alt="Document">
                             </div>
                         </div>
 
