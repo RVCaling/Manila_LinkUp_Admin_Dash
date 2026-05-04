@@ -29,6 +29,11 @@
             <span class="material-symbols-outlined">bar_chart</span> Analytics
         </a>
 
+        <a href="{{ route('admin.verifications') }}" class="nav-link-custom {{ Request::is('admin/verifications*') ? 'active' : '' }}" style="display: flex; align-items: center;">
+            <span class="material-symbols-outlined">fact_check</span> Verifications
+            <span id="verif-badge" class="ms-auto badge rounded-pill bg-warning text-dark d-none" style="font-size: 0.65rem; padding: 3px 7px;">0</span>
+        </a>
+
         <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
             @csrf
         </form>

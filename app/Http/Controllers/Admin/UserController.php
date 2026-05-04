@@ -38,7 +38,7 @@ class UserController extends Controller
                 'address'          => $u['address'] ?? 'N/A',
                 'img'              => $u['profilePhotoUrl'] ?? 'https://via.placeholder.com/150',
                 'suspensionReason' => '',
-                'needs'            => $verified ? 'Complete' : 'Valid ID, NBI Clearance',
+                'needs'            => $verified ? 'Complete' : 'Valid ID, Clearance',
             ];
         }
 

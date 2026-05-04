@@ -55,15 +55,36 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 3. Document Selector Logic
-    const docButtons = document.querySelectorAll('#documentList .list-group-item');
     const previewImg = document.getElementById('docImagePreview');
+    const documentList = document.getElementById('documentList');
 
-    docButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            docButtons.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            previewImg.src = this.getAttribute('data-doc-src');
+    function buildDocumentList(validIdUrl, clearanceUrl) {
+        const docs = [];
+        if (validIdUrl)   docs.push({ label: 'Valid ID',        url: validIdUrl });
+        if (clearanceUrl) docs.push({ label: 'Business Permit', url: clearanceUrl });
+
+        documentList.innerHTML = '';
+        docs.forEach(function (doc, i) {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'list-group-item list-group-item-action rounded-3 mb-2 border-0' + (i === 0 ? ' active' : '');
+            item.setAttribute('data-doc-src', doc.url);
+            item.innerHTML = '<div class="d-flex align-items-center">' +
+                '<span class="material-symbols-outlined me-2 fs-5">article</span>' +
+                '<div class="small fw-bold">' + doc.label + '</div>' +
+                '</div>';
+            documentList.appendChild(item);
         });
+
+        previewImg.src = docs.length > 0 ? docs[0].url : '';
+    }
+
+    documentList.addEventListener('click', function (e) {
+        const btn = e.target.closest('.list-group-item');
+        if (!btn) return;
+        documentList.querySelectorAll('.list-group-item').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        previewImg.src = btn.getAttribute('data-doc-src');
     });
 
     // 4. Verification & Rejection Logic
@@ -87,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentEmployerUid  = btn.getAttribute('data-uid');
             currentEmployerName = btn.getAttribute('data-name');
             document.getElementById('modalEntityName').innerText = currentEmployerName;
+            buildDocumentList(btn.getAttribute('data-valid-id'), btn.getAttribute('data-clearance'));
         }
     });
 
