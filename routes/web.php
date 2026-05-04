@@ -42,6 +42,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Analytics
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
 
+    // Verification Queue
+    Route::get('/verifications', [VerificationController::class, 'index'])->name('verifications');
+
     // Verification actions
     Route::post('/{type}/{uid}/verify', [VerificationController::class, 'verify'])->name('verify');
     Route::post('/{type}/{uid}/reject', [VerificationController::class, 'reject'])->name('reject');
