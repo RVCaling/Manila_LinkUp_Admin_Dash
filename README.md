@@ -1,61 +1,167 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Manila LinkUp — Admin Dashboard
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel 12 admin panel for the Manila LinkUp job-matching platform. Communicates exclusively with the `manilalinkup-api` backend — no direct Firestore access.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Backend:** Laravel 12 (PHP 8.2+), Blade, SQLite (sessions/cache/queue)
+- **Frontend:** Bootstrap 5, vanilla JS (`public/js/`)
+- **Auth:** Firebase Auth (JS SDK) + server-side token verification via `kreait/laravel-firebase`
+- **Data:** All reads/writes go through `ApiService` → `manilalinkup-api`
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Setup
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+npm install && npm run build
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+`.env` values to fill in:
 
-## Laravel Sponsors
+```
+FIREBASE_CREDENTIALS=storage/app/firebase/firebase_credentials.json
+FIREBASE_DATABASE_URL=https://manilalinkup-default-rtdb.firebaseio.com/
+FIREBASE_WEB_API_KEY=        # Firebase Console → Project Settings → General → Web API Key
+API_URL=http://127.0.0.1:8000
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Copy Firebase credentials from the API project:
 
-### Premium Partners
+```bash
+cp ../manilalinkup-api/storage/app/firebase/firebase_credentials.json storage/app/firebase/
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Admin account prerequisite
 
-## Contributing
+The admin user must exist in **both**:
+1. **Firebase Auth** — email/password account
+2. **Firestore `admins` collection** — document whose ID is that user's Firebase UID
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## Running
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Two servers must run simultaneously:
 
-## Security Vulnerabilities
+```bash
+# Terminal 1 — API (port 8000)
+cd /Applications/XAMPP/xamppfiles/htdocs/manilalinkup-api
+php artisan serve
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Terminal 2 — Admin Dash (port 8001)
+cd /Applications/XAMPP/xamppfiles/htdocs/Manila_LinkUp_Admin_Dash
+composer run dev
+```
 
-## License
+Admin dash: `http://localhost:8001/admin/login`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Commands
 
-# Manila_LinkUp_Admin_Dash
+| Command | Description |
+|---|---|
+| `composer run dev` | PHP server (8001) + queue + logs + Vite HMR |
+| `composer run test` | PHPUnit tests |
+| `php artisan migrate` | Run DB migrations |
+| `npm run build` | Production JS/CSS build |
+
+---
+
+## Architecture
+
+**Auth flow:**
+1. Login page calls Firebase JS SDK `signInWithEmailAndPassword()`
+2. Gets ID token + refresh token → POSTs to `AdminDashboardController::authenticate()`
+3. Laravel verifies token, checks UID in Firestore `admins` collection
+4. Stores `{ uid, email, idToken, refreshToken, tokenExpiry }` in session
+5. `ApiService` attaches token as `Authorization: Bearer` on every API call
+6. Token auto-refreshes when within 5 min of expiry
+
+**Frontend pattern:** Blade injects server data as `window.<varName> = @json($data)` before JS loads. JS reads `window.<varName>` on init.
+
+---
+
+## Routes & Controllers
+
+### Auth — `AdminDashboardController`
+
+| Method | Route | Function | Description |
+|---|---|---|---|
+| GET | `/admin/login` | `showLogin` | Render login page |
+| POST | `/admin/login` | `authenticate` | Verify Firebase token, start session |
+| GET | `/admin/dashboard` | `index` | Main dashboard with overview stats |
+| POST | `/admin/logout` | `logout` | Clear session |
+
+### Users — `Admin\UserController`
+
+| Method | Route | Function | Description |
+|---|---|---|---|
+| GET | `/admin/users` | `index` | All seekers + employers |
+| GET | `/admin/users/{uid}/photo` | `photo` | Proxy user profile photo |
+
+### Seekers — `Admin\SeekerController`
+
+| Method | Route | Function | Description |
+|---|---|---|---|
+| GET | `/admin/seekers` | `index` | Pending seeker verification queue |
+
+### Employers — `Admin\EmployerController`
+
+| Method | Route | Function | Description |
+|---|---|---|---|
+| GET | `/admin/employers` | `index` | Pending employer verification queue |
+
+### Verifications — `Admin\VerificationController`
+
+| Method | Route | Function | Description |
+|---|---|---|---|
+| GET | `/admin/verifications` | `index` | Full verification queue |
+| GET | `/admin/notifications` | `notifications` | Pending verifications for bell icon |
+| POST | `/admin/{type}/{uid}/verify` | `verify` | Approve a user verification |
+| POST | `/admin/{type}/{uid}/reject` | `reject` | Reject a user verification |
+
+### Analytics — `Admin\AnalyticsController`
+
+| Method | Route | Function | Description |
+|---|---|---|---|
+| GET | `/admin/analytics` | `index` | Overview stats + charts |
+| GET | `/admin/analytics/filter` | `filter` | Filtered analytics data |
+
+### Profile — `Admin\ProfileController`
+
+| Method | Route | Function | Description |
+|---|---|---|---|
+| GET | `/admin/profile` | `edit` | Admin profile page |
+| POST | `/admin/profile/update` | `update` | Update admin profile |
+
+---
+
+## ApiService
+
+`app/Services/ApiService.php` — central HTTP client used by all controllers.
+
+| Method | Description |
+|---|---|
+| `get(endpoint, query)` | Authenticated GET request to the API |
+| `post(endpoint, data)` | Authenticated POST request to the API |
+
+Handles token refresh and 401 → force logout automatically.
+
+### API endpoints consumed
+
+| Endpoint | Description |
+|---|---|
+| `GET /api/admin/users` | All seekers + employers |
+| `GET /api/admin/seekers?verified=false` | Pending seeker queue |
+| `GET /api/admin/employers?verified=false` | Pending employer queue |
+| `GET /api/admin/analytics/overview` | Job/application/hire counts |
+| `GET /api/admin/analytics/users` | Seeker/employer counts + verified counts |
+| `GET /api/admin/pendingVerifications` | Users pending verification (bell icon) |
+| `POST /api/admin/verifyUser` | `{ type, userUid }` — approve |
+| `POST /api/admin/rejectVerification` | `{ type, userUid }` — reject |
