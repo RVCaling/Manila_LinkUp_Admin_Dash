@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\ApiService;
+use Illuminate\Http\Request;
 
 class AnalyticsController extends Controller
 {
@@ -22,6 +23,22 @@ class AnalyticsController extends Controller
             'jobCount' => $t['jobCount'],
         ])->values()->toArray();
 
-        return view('admin.analytics', compact('overview', 'usersStats', 'trendingTags'));
+        $monthlyGrowth = $api->get('/admin/analytics/users/growth')['data'] ?? (object)[];
+
+        return view('admin.analytics', compact('overview', 'usersStats', 'trendingTags', 'monthlyGrowth'));
+    }
+
+    public function filter(Request $request)
+    {
+        $days = (int) $request->input('days', 30);
+        if (!in_array($days, [1, 7, 30])) {
+            $days = 30;
+        }
+
+        $api      = app(ApiService::class);
+        $overview = $api->get("/admin/analytics/overview?days={$days}")['data'] ?? [];
+        $users    = $api->get("/admin/analytics/users?days={$days}")['data'] ?? [];
+
+        return response()->json(compact('overview', 'users'));
     }
 }

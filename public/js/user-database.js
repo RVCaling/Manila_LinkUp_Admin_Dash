@@ -72,8 +72,53 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    let activeAction = null; 
+    let activeAction = null;
     let activeUserId = null;
+
+    // ── Profile photo cache ────────────────────────────────────────────────
+    // Photos are stored as base64 in Firestore profilePhotos/{uid}.
+    // We proxy through /admin/users/{uid}/photo to avoid CORS + auth issues.
+    // Maps uid → data URI string. Fetched once per session; instant on re-open.
+    const photoCache = {};
+    const PHOTO_PLACEHOLDER = 'https://via.placeholder.com/150';
+
+    function loadProfilePhoto(uid, imgEl) {
+        imgEl.style.transition = 'opacity 0.2s';
+
+        // Cache hit — show immediately
+        if (photoCache[uid]) {
+            imgEl.src = photoCache[uid];
+            imgEl.style.opacity = '1';
+            return;
+        }
+
+        // Dim while fetching
+        imgEl.src = PHOTO_PLACEHOLDER;
+        imgEl.style.opacity = '0.4';
+
+        fetch('/admin/users/' + uid + '/photo', {
+            credentials: 'same-origin',
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+            .then(function (json) {
+                if (json.data) {
+                    // base64 may already include the data URI prefix
+                    var src = json.data.startsWith('data:')
+                        ? json.data
+                        : 'data:image/jpeg;base64,' + json.data;
+                    photoCache[uid] = src;
+                    imgEl.src = src;
+                } else {
+                    imgEl.src = PHOTO_PLACEHOLDER;
+                }
+                imgEl.style.opacity = '1';
+            })
+            .catch(function () {
+                imgEl.src = PHOTO_PLACEHOLDER;
+                imgEl.style.opacity = '1';
+            });
+    }
 
     // 2. Render Main Table
     window.renderUserTable = function(filterTerm = '') {
@@ -140,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modal-user-type').innerText = user.type;
         document.getElementById('modal-user-district').innerText = user.district;
         document.getElementById('modal-user-address').innerText = user.address;
-        document.getElementById('modal-user-img').src = user.img;
+        loadProfilePhoto(user.uid, document.getElementById('modal-user-img'));
         
         document.getElementById('modal-user-rating').innerHTML = `${user.rating} <span class="rating-star">★</span>`;
 

@@ -54,15 +54,15 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <p class="text-muted small fw-bold mb-1">Total Users</p>
-                            <h3 class="fw-bold mb-0" id="total-users">5,432</h3>
-                            <small class="text-success fw-bold">+12% this week</small>
+                            <h3 class="fw-bold mb-0" id="total-users">{{ $dashboardData['totalUsers'] }}</h3>
+                            <small class="text-success fw-bold">+{{ $dashboardData['newUsersLast30Days'] }} in 30 days</small>
                         </div>
                         <span class="material-symbols-outlined text-primary bg-light p-2 rounded-3">groups</span>
                     </div>
                     <hr class="my-2 opacity-25">
                     <div class="d-flex justify-content-between small text-muted">
-                        <span>Seekers: <b id="stat-seekers">3,412</b></span>
-                        <span>Employers: <b id="stat-employers">2,020</b></span>
+                        <span>Seekers: <b id="stat-seekers">{{ $dashboardData['totalSeekers'] }}</b></span>
+                        <span>Employers: <b id="stat-employers">{{ $dashboardData['totalEmployers'] }}</b></span>
                     </div>
                 </div>
             </div>
@@ -70,9 +70,9 @@
                 <div class="stat-card p-3 bg-white rounded-4 shadow-sm">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="text-muted small fw-bold mb-1">Pending Seekers</p>
-                            <h3 class="fw-bold mb-0 text-warning" id="pending-seekers">128</h3>
-                            <small class="text-warning fw-bold">+8% today</small>
+                            <p class="text-muted small fw-bold mb-1">Pending Verifications</p>
+                            <h3 class="fw-bold mb-0 text-warning" id="pending-seekers">{{ $dashboardData['pendingVerifications'] }}</h3>
+                            <small class="text-warning fw-bold">Awaiting review</small>
                         </div>
                         <span class="material-symbols-outlined text-warning bg-light p-2 rounded-3">pending_actions</span>
                     </div>
@@ -83,8 +83,8 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <p class="text-muted small fw-bold mb-1">Verified Users</p>
-                            <h3 class="fw-bold mb-0 text-success" id="verified-users">5,304</h3>
-                            <small class="text-success fw-bold">+20% active</small>
+                            <h3 class="fw-bold mb-0 text-success" id="verified-users">{{ $dashboardData['verifiedUsers'] }}</h3>
+                            <small class="text-success fw-bold">Seekers &amp; employers</small>
                         </div>
                         <span class="material-symbols-outlined text-success bg-light p-2 rounded-3">verified_user</span>
                     </div>
@@ -94,11 +94,11 @@
                 <div class="stat-card p-3 bg-white rounded-4 shadow-sm">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="text-muted small fw-bold mb-1">System Alerts</p>
-                            <h3 class="fw-bold mb-0 text-danger" id="system-alerts">14</h3>
-                            <small class="text-danger fw-bold">-15% from yesterday</small>
+                            <p class="text-muted small fw-bold mb-1">Active Jobs</p>
+                            <h3 class="fw-bold mb-0 text-danger" id="system-alerts">{{ $dashboardData['activeJobs'] }}</h3>
+                            <small class="text-danger fw-bold">Currently live</small>
                         </div>
-                        <span class="material-symbols-outlined text-danger bg-light p-2 rounded-3">report</span>
+                        <span class="material-symbols-outlined text-danger bg-light p-2 rounded-3">work</span>
                     </div>
                 </div>
             </div>
@@ -212,6 +212,7 @@
             seekers: "{{ route('admin.seekers') }}",
             employers: "{{ route('admin.employers') }}"
         };
+        window.dashboardData = @json($dashboardData);
     </script>
 
     <script src="{{ asset('js/notifications.js') }}"></script>

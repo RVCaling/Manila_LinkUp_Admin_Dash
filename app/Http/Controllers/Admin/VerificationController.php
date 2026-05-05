@@ -31,6 +31,27 @@ class VerificationController extends Controller
         return view('admin.verifications', ['pending' => $pending]);
     }
 
+    public function notifications()
+    {
+        $raw   = app(ApiService::class)->get('/admin/pendingVerifications')['data'] ?? [];
+        $items = [];
+
+        foreach (array_values($raw) as $item) {
+            $name = $item['fullName']
+                ?? trim(($item['firstName'] ?? '') . ' ' . ($item['lastName'] ?? ''))
+                ?: 'Unknown';
+
+            $items[] = [
+                'uid'       => $item['uid'],
+                'name'      => $name,
+                'userType'  => $item['userType'] ?? 'seeker',
+                'updatedAt' => $item['updatedAt'] ?? null,
+            ];
+        }
+
+        return response()->json($items);
+    }
+
     public function verify(string $type, string $uid)
     {
         app(ApiService::class)->post('/admin/verifyUser', [

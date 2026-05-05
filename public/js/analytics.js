@@ -12,47 +12,22 @@ document.addEventListener('DOMContentLoaded', function() {
         sky: '#0EA5E9'
     };
 
-    // Simulated data based on time filters
-    const dashboardData = {
-        'Last 30 Days': {
-            retention: "84.2%",
-            retentionTrend: "+2.4%",
-            verifyTime: "4.5h",
-            verifyTrend: "-1.2h",
-            matches: "1,240",
-        },
-        'Last 7 Days': {
-            retention: "81.5%",
-            retentionTrend: "+0.8%",
-            verifyTime: "3.2h",
-            verifyTrend: "-0.5h",
-            matches: "312",
-        },
-        'Last 24 Hours': {
-            retention: "88.1%",
-            retentionTrend: "+5.2%",
-            verifyTime: "1.5h",
-            verifyTrend: "-0.2h",
-            matches: "45",
-        }
+    const filterDays = {
+        'Last 30 Days': 30,
+        'Last 7 Days': 7,
+        'Last 24 Hours': 1,
     };
 
     const tagData   = window.trendingTags || [];
     const jobLabels = tagData.map(t => t.label);
     const jobCounts = tagData.map(t => t.jobCount);
 
-    const yearlyGrowth = {
-        '2026': {
-            seekers: [400, 600, 800, 1100, 1300, 1500],
-            employers: [100, 150, 300, 450, 500, 650]
-        },
-        '2025': {
-            seekers: [200, 350, 410, 500, 580, 700],
-            employers: [50, 80, 120, 200, 240, 310]
-        }
-    };
+    const yearlyGrowth = window.monthlyGrowth || {};
 
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const currentYear = String(new Date().getFullYear());
+    const defaultYear = yearlyGrowth[currentYear] ? currentYear : Object.keys(yearlyGrowth)[0] || currentYear;
 
     let jobChart, growthChart;
 
@@ -86,13 +61,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const growthCtx = document.getElementById('growthChart');
         if (growthCtx) {
+            const initData = yearlyGrowth[defaultYear] || { seekers: Array(12).fill(0), employers: Array(12).fill(0) };
             growthChart = new Chart(growthCtx, {
                 type: 'bar',
                 data: {
                     labels: months,
                     datasets: [
-                        { label: 'Seekers', data: yearlyGrowth['2026'].seekers, backgroundColor: analyticsPalette.indigo, borderRadius: 8 },
-                        { label: 'Employers', data: yearlyGrowth['2026'].employers, backgroundColor: analyticsPalette.teal, borderRadius: 8 }
+                        { label: 'Seekers', data: initData.seekers, backgroundColor: analyticsPalette.indigo, borderRadius: 8 },
+                        { label: 'Employers', data: initData.employers, backgroundColor: analyticsPalette.teal, borderRadius: 8 }
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
@@ -104,20 +80,38 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==========================================
     // 3. CORE UPDATE LOGIC
     // ==========================================
-    window.updateDashboard = function(filter) {
-        const data = dashboardData[filter];
-        
-        // Update Text Metrics
-        document.querySelector('.border-indigo h2').innerText = data.retention;
-        document.querySelector('.border-indigo small').innerHTML = `<span class="material-symbols-outlined fs-6 align-middle">trending_up</span> ${data.retentionTrend}`;
-        
-        document.querySelector('.border-teal h2').innerText = data.verifyTime;
-        document.querySelector('.border-teal small').innerHTML = `<span class="material-symbols-outlined fs-6 align-middle">bolt</span> ${data.verifyTrend}`;
-        
-        document.querySelector('.border-coral h2').innerText = data.matches;
-
-        // Update Button UI
+    window.updateDashboard = async function(filter) {
         document.getElementById('filterText').innerText = filter;
+
+        const days = filterDays[filter] || 30;
+
+        let overview = {}, users = {};
+        try {
+            const res  = await fetch(`/admin/analytics/filter?days=${days}`);
+            const json = await res.json();
+            overview = json.overview || {};
+            users    = json.users    || {};
+        } catch (e) {
+            console.error('Failed to load filtered analytics:', e);
+            return;
+        }
+
+        const newUsers = (users.newSeekers || 0) + (users.newEmployers || 0);
+
+        document.getElementById('stat-indigo-label').innerText = `New Users (${filter})`;
+        document.getElementById('stat-indigo-value').innerText = newUsers;
+        document.getElementById('stat-indigo-sub').innerText =
+            `${users.newSeekers || 0} seekers · ${users.newEmployers || 0} employers`;
+
+        document.getElementById('stat-teal-label').innerText = `Jobs Posted (${filter})`;
+        document.getElementById('stat-teal-value').innerText = overview.totalJobs || 0;
+        document.getElementById('stat-teal-sub').innerText =
+            `${overview.totalApplications || 0} applications`;
+
+        document.getElementById('stat-coral-label').innerText = `Hires Made (${filter})`;
+        document.getElementById('stat-coral-value').innerText = overview.totalHires || 0;
+        document.getElementById('stat-coral-sub').innerText =
+            `from ${overview.totalApplications || 0} applications`;
     };
 
     function updateLegend() {
@@ -161,26 +155,68 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
 
             // Update Chart
-            growthChart.data.datasets[0].data = yearlyGrowth[year].seekers;
-            growthChart.data.datasets[1].data = yearlyGrowth[year].employers;
+            const yearData = yearlyGrowth[year] || { seekers: Array(12).fill(0), employers: Array(12).fill(0) };
+            growthChart.data.datasets[0].data = yearData.seekers;
+            growthChart.data.datasets[1].data = yearData.employers;
             growthChart.update();
         });
     });
 
-    // Export Logic (Simple CSV download)
     window.exportData = function() {
-        let csvContent = "data:text/csv;charset=utf-8,Category,Value\n";
-        csvContent += `Retention Rate,${document.querySelector('.border-indigo h2').innerText}\n`;
-        csvContent += `Avg Verification,${document.querySelector('.border-teal h2').innerText}\n`;
-        csvContent += `Job Matches,${document.querySelector('.border-coral h2').innerText}\n`;
-        
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "manila_linkup_report.csv");
+        const now      = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        const overview = window.overviewStats || {};
+        const users    = window.usersStats    || {};
+        const tags     = window.trendingTags  || [];
+        const growth   = window.monthlyGrowth || {};
+
+        const totalUsers = (users.totalSeekers || 0) + (users.totalEmployers || 0);
+        const hireRate   = overview.totalApplications
+            ? ((overview.totalHires / overview.totalApplications) * 100).toFixed(1) + '%'
+            : 'N/A';
+
+        const rows = [
+            ['Manila LinkUp — Analytics Report'],
+            ['Generated At', now],
+            [],
+            ['USER SUMMARY'],
+            ['Total Users',      totalUsers],
+            ['Total Seekers',    users.totalSeekers   ?? 0],
+            ['Total Employers',  users.totalEmployers ?? 0],
+            [],
+            ['JOBS SUMMARY'],
+            ['Active Jobs',         overview.activeJobs        ?? 0],
+            ['Total Jobs',          overview.totalJobs         ?? 0],
+            ['Total Applications',  overview.totalApplications ?? 0],
+            ['Total Hires',         overview.totalHires        ?? 0],
+            ['Hire Rate',           hireRate],
+            [],
+            ['TRENDING JOB TAGS (Top 6)'],
+            ['Tag', 'Job Postings'],
+            ...tags.map(t => [t.label, t.jobCount]),
+            [],
+            ['MONTHLY REGISTRATION GROWTH'],
+            ['Year', 'Month', 'Seekers', 'Employers'],
+        ];
+
+        const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        Object.entries(growth).sort().forEach(([year, data]) => {
+            monthNames.forEach((month, i) => {
+                const s = (data.seekers   || [])[i] || 0;
+                const e = (data.employers || [])[i] || 0;
+                if (s || e) rows.push([year, month, s, e]);
+            });
+        });
+
+        const csv  = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url  = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href  = url;
+        link.download = `manila_linkup_report_${now.slice(0, 10)}.csv`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     initCharts();
