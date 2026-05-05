@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Kreait\Laravel\Firebase\Facades\Firebase;
@@ -24,6 +25,7 @@ class AdminDashboardController extends Controller
             $verified = Firebase::auth()->verifyIdToken($request->id_token, false, 60);
             $uid      = $verified->claims()->get('sub');
             $email    = $verified->claims()->get('email');
+            $name     = $verified->claims()->get('name') ?? '';
         } catch (\Throwable $e) {
             return back()->with('error', 'Authentication failed. Please try again.');
         }
@@ -42,6 +44,7 @@ class AdminDashboardController extends Controller
             'admin_logged_in'    => true,
             'admin_uid'          => $uid,
             'admin_email'        => $email,
+            'admin_name'         => $name,
             'admin_id_token'     => $request->id_token,
             'admin_refresh_token'=> $request->refresh_token,
             'admin_token_expiry' => now()->addMinutes(55)->timestamp,
@@ -56,10 +59,24 @@ class AdminDashboardController extends Controller
             return redirect()->route('admin.login');
         }
 
-        $viewType = $request->query('type', 'seeker');
-        $users = [];
+        $api      = app(ApiService::class);
+        $users    = $api->get('/admin/analytics/users')['data']    ?? [];
+        $overview = $api->get('/admin/analytics/overview')['data'] ?? [];
+        $growth   = $api->get('/admin/analytics/users/growth')['data'] ?? [];
+        $pending  = $api->get('/admin/pendingVerifications')['data'] ?? [];
 
-        return view('admin.dashboard', compact('users', 'viewType'));
+        $dashboardData = [
+            'totalUsers'          => ($users['totalSeekers']    ?? 0) + ($users['totalEmployers']    ?? 0),
+            'totalSeekers'        => $users['totalSeekers']    ?? 0,
+            'totalEmployers'      => $users['totalEmployers']  ?? 0,
+            'verifiedUsers'       => ($users['verifiedSeekers'] ?? 0) + ($users['verifiedEmployers'] ?? 0),
+            'newUsersLast30Days'  => ($users['newSeekers']      ?? 0) + ($users['newEmployers']      ?? 0),
+            'activeJobs'          => $overview['activeJobs']   ?? 0,
+            'pendingVerifications'=> count(array_values($pending)),
+            'growth'              => $growth,
+        ];
+
+        return view('admin.dashboard', compact('dashboardData'));
     }
 
     public function logout()

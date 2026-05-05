@@ -5,18 +5,35 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Kreait\Laravel\Firebase\Facades\Firebase;
 
 class ProfileController extends Controller
 {
-    /**
-     * Show the form for editing the admin profile.
-     */
     public function edit()
     {
-        // In a real application, you would fetch current admin data 
-        // from Firebase or Auth::user() here to pass to the view.
-        return view('admin.profile');
+        $name  = Session::get('admin_name', '');
+        $email = Session::get('admin_email', '');
+
+        if (!$email) {
+            $uid = Session::get('admin_uid');
+            if ($uid) {
+                try {
+                    $user  = Firebase::auth()->getUser($uid);
+                    $email = $user->email ?? '';
+                    $name  = $name ?: ($user->displayName ?? '');
+                    Session::put(['admin_email' => $email, 'admin_name' => $name]);
+                } catch (\Throwable $e) {
+                    // silent fail
+                }
+            }
+        }
+
+        return view('admin.profile', [
+            'adminName'  => $name,
+            'adminEmail' => $email,
+        ]);
     }
 
     /**

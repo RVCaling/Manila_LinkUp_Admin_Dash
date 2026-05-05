@@ -34,8 +34,8 @@
                                 <span class="material-symbols-outlined fs-6 pt-1">edit</span>
                             </button>
                         </div>
-                        <h4 class="fw-bold mb-0">Admin Portal</h4>
-                        <p class="text-muted small">System Overseer</p>
+                        <h4 class="fw-bold mb-0">{{ $adminName ?: 'Admin' }}</h4>
+                        <p class="text-muted small">{{ $adminEmail }}</p>
                         <hr class="text-muted opacity-25">
                         <div class="text-start small">
                             <p class="mb-2"><strong>Last Login:</strong> <span class="text-muted">April 20, 2026</span></p>
@@ -53,11 +53,11 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label small fw-bold text-muted">Full Name</label>
-                                    <input type="text" name="name" class="form-control bg-light border-0" value="Admin Portal" required>
+                                    <input type="text" name="name" class="form-control bg-light border-0" value="{{ $adminName }}" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small fw-bold text-muted">Email Address</label>
-                                    <input type="email" name="email" class="form-control bg-light border-0" value="admin@manilalinkup.ph" required>
+                                    <input type="email" name="email" class="form-control bg-light border-0" value="{{ $adminEmail }}" required>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label small fw-bold text-muted">New Password (Leave blank to keep current)</label>

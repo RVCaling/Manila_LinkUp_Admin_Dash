@@ -32,6 +32,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // User Database
     Route::get('/users', [UserController::class, 'index'])->name('users');
+    Route::get('/users/{uid}/photo', [UserController::class, 'photo'])->name('users.photo');
 
     // Seeker Verification
     Route::get('/seekers', [SeekerController::class, 'index'])->name('seekers');
@@ -41,9 +42,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Analytics
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
+    Route::get('/analytics/filter', [AnalyticsController::class, 'filter'])->name('analytics.filter');
 
     // Verification Queue
     Route::get('/verifications', [VerificationController::class, 'index'])->name('verifications');
+
+    // Notifications (pending verifications for bell icon)
+    Route::get('/notifications', [VerificationController::class, 'notifications'])->name('notifications');
 
     // Verification actions
     Route::post('/{type}/{uid}/verify', [VerificationController::class, 'verify'])->name('verify');

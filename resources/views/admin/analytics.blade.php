@@ -59,28 +59,28 @@
         <div class="row g-3 mb-4">
             <div class="col-md-4">
                 <div class="bg-white p-4 rounded-4 shadow-sm border-start border-indigo border-4">
-                    <p class="text-muted small fw-bold mb-1">Total Users</p>
+                    <p id="stat-indigo-label" class="text-muted small fw-bold mb-1">Total Users</p>
                     <div class="d-flex align-items-end gap-2">
-                        <h2 class="fw-bold mb-0">{{ ($usersStats['totalSeekers'] ?? 0) + ($usersStats['totalEmployers'] ?? 0) }}</h2>
-                        <small class="text-muted small mb-1">{{ $usersStats['totalSeekers'] ?? 0 }} seekers · {{ $usersStats['totalEmployers'] ?? 0 }} employers</small>
+                        <h2 id="stat-indigo-value" class="fw-bold mb-0">{{ ($usersStats['totalSeekers'] ?? 0) + ($usersStats['totalEmployers'] ?? 0) }}</h2>
+                        <small id="stat-indigo-sub" class="text-muted small mb-1">{{ $usersStats['totalSeekers'] ?? 0 }} seekers · {{ $usersStats['totalEmployers'] ?? 0 }} employers</small>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="bg-white p-4 rounded-4 shadow-sm border-start border-teal border-4">
-                    <p class="text-muted small fw-bold mb-1">Active Jobs</p>
+                    <p id="stat-teal-label" class="text-muted small fw-bold mb-1">Active Jobs</p>
                     <div class="d-flex align-items-end gap-2">
-                        <h2 class="fw-bold mb-0">{{ $overview['activeJobs'] ?? 0 }}</h2>
-                        <small class="text-muted small mb-1">of {{ $overview['totalJobs'] ?? 0 }} total</small>
+                        <h2 id="stat-teal-value" class="fw-bold mb-0">{{ $overview['activeJobs'] ?? 0 }}</h2>
+                        <small id="stat-teal-sub" class="text-muted small mb-1">of {{ $overview['totalJobs'] ?? 0 }} total</small>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="bg-white p-4 rounded-4 shadow-sm border-start border-coral border-4">
-                    <p class="text-muted small fw-bold mb-1">Total Hired</p>
+                    <p id="stat-coral-label" class="text-muted small fw-bold mb-1">Total Hired</p>
                     <div class="d-flex align-items-end gap-2">
-                        <h2 class="fw-bold mb-0">{{ $overview['totalHires'] ?? 0 }}</h2>
-                        <small class="text-muted small mb-1">from {{ $overview['totalApplications'] ?? 0 }} applications</small>
+                        <h2 id="stat-coral-value" class="fw-bold mb-0">{{ $overview['totalHires'] ?? 0 }}</h2>
+                        <small id="stat-coral-sub" class="text-muted small mb-1">from {{ $overview['totalApplications'] ?? 0 }} applications</small>
                     </div>
                 </div>
             </div>
@@ -134,6 +134,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script src="{{ asset('js/notifications.js') }}"></script>
+    <script>
+        window.trendingTags  = @json($trendingTags);
+        window.monthlyGrowth = @json($monthlyGrowth);
+        window.overviewStats = @json($overview);
+        window.usersStats    = @json($usersStats);
+    </script>
     <script src="{{ asset('js/analytics.js') }}"></script>
 </body>
 </html>

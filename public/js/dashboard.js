@@ -1,103 +1,171 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // 1. Data Store (Combined with notifications if necessary)
-    if (!window.dummyData) window.dummyData = {};
-    
-    window.dummyData.trends = [2200, 2800, 3100, 2900, 3400, 4200, 3800, 4500, 4100, 5000, 4800, 5432];
-    window.dummyData.feed = [
-        { tag: '#ManilaJobs', text: 'Seeker posted in Binondo', user: 'Juan D.', time: '2 mins ago' },
-        { tag: '#HiringNow', text: 'Employer added 5 slots in Malate', user: 'Logistics Co', time: '1 hour ago' },
-        { tag: '#SampalocHiring', text: 'New opening near UST area', user: 'Cafe Manila', time: '3 hours ago' },
-        { tag: '#TondoWorks', text: 'Verification pending for new user', user: 'Maria S.', time: '5 hours ago' }
-    ];
-    window.dummyData.queue = [
-        { id: 101, status: 'Pending', name: 'Maria Santos', role: 'Seeker', location: 'Tondo', date: 'Apr 21, 2026' },
-        { id: 202, status: 'Pending', name: 'Quiapo Vendor Assoc', role: 'Employer', location: 'Quiapo', date: 'Apr 21, 2026' },
-        { id: 103, status: 'Pending', name: 'Ricardo Dalisay', role: 'Seeker', location: 'Binondo', date: 'Apr 21, 2026' },
-        { id: 204, status: 'Approved', name: 'Intramuros Tour', role: 'Employer', location: 'Intramuros', date: 'Apr 20, 2026' },
-        { id: 205, status: 'Rejected', name: 'Fake Company Inc', role: 'Employer', location: 'Unknown', date: 'Apr 19, 2026' }
-    ];
+document.addEventListener('DOMContentLoaded', function () {
+    var data   = window.dashboardData || {};
+    var growth = data.growth || {};
 
-    // 2. Trends Chart
-    const ctx = document.getElementById('userTrendsChart');
+    // ── Trends Chart ────────────────────────────────────────────────────────
+    var ctx = document.getElementById('userTrendsChart');
     if (ctx) {
+        var monthLabels  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var currentYear  = new Date().getFullYear().toString();
+        var currentMonth = new Date().getMonth(); // 0-indexed
+
+        // Use current year if available, otherwise the most recent year in data
+        var yearKeys = Object.keys(growth).sort().reverse();
+        var yearData = growth[currentYear] || (yearKeys.length ? growth[yearKeys[0]] : {});
+
+        var seekers   = yearData.seekers   || new Array(12).fill(0);
+        var employers = yearData.employers || new Array(12).fill(0);
+
+        // Only plot up to the current month
+        var labels = monthLabels.slice(0, currentMonth + 1);
+        var totals = seekers.slice(0, currentMonth + 1).map(function (s, i) {
+            return s + (employers[i] || 0);
+        });
+
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['0', '2', '4', '6', '8', '10', '12', '14', '16', '18', '20', '30'],
+                labels: labels,
                 datasets: [{
-                    data: dummyData.trends,
+                    data: totals,
                     borderColor: '#1B3E9C',
                     backgroundColor: 'rgba(27, 62, 156, 0.1)',
                     fill: true,
                     tension: 0.4,
-                    pointRadius: 0
+                    pointRadius: 3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
-                scales: { 
-                    y: { grid: { color: '#f5f5f5' } },
+                scales: {
+                    y: { grid: { color: '#f5f5f5' }, beginAtZero: true },
                     x: { grid: { display: false } }
                 }
             }
         });
     }
 
-    // 3. Feed & Queue Rendering Functions
-    function createActivityHTML(item) {
-        return `
-            <div class="d-flex align-items-center mb-3 pb-3 border-bottom border-light">
-                <div class="bg-primary-subtle rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                    <span class="material-symbols-outlined text-primary fs-5">location_on</span>
-                </div>
-                <div class="flex-grow-1">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold small" style="color: #1B3E9C;">${item.tag}</span>
-                        <span class="extra-small text-muted">${item.time}</span>
-                    </div>
-                    <p class="mb-0 small text-muted">${item.text}</p>
-                    <small class="extra-small fw-bold text-secondary">By ${item.user}</small>
-                </div>
-            </div>`;
+    // ── Fetch pending verifications for feed + queue ─────────────────────────
+    fetch('/admin/notifications', {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+    })
+    .then(function (pending) {
+        renderFeed(Array.isArray(pending) ? pending : []);
+        renderQueue(Array.isArray(pending) ? pending : []);
+    })
+    .catch(function () {
+        renderFeed([]);
+        renderQueue([]);
+    });
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function relativeTime(iso) {
+        if (!iso) return '';
+        var diff  = new Date() - new Date(iso);
+        if (isNaN(diff) || diff < 0) return 'Just now';
+        var mins  = Math.floor(diff / 60000);
+        var hours = Math.floor(mins  / 60);
+        var days  = Math.floor(hours / 24);
+        if (mins  < 1)  return 'Just now';
+        if (mins  < 60) return mins  + (mins  === 1 ? ' min'  : ' mins')  + ' ago';
+        if (hours < 24) return hours + (hours === 1 ? ' hour' : ' hours') + ' ago';
+        if (days  < 7)  return days  + (days  === 1 ? ' day'  : ' days')  + ' ago';
+        return new Date(iso).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
     }
 
-    function createQueueRow(item, isFullModal = false) {
-        const badgeClass = item.status === 'Approved' ? 'bg-success-subtle text-success' : 
-                          (item.status === 'Pending' ? 'bg-warning-subtle text-warning' : 'bg-danger-subtle text-danger');
-        
-        // Use the routes passed from Blade
-        const targetUrl = item.role === 'Employer' ? window.adminRoutes.employers : window.adminRoutes.seekers;
+    // ── Activity Feed ────────────────────────────────────────────────────────
+    function feedItemHtml(item) {
+        var isEmployer = item.userType === 'employer';
+        var tag        = isEmployer ? '#NewEmployer' : '#NewSeeker';
+        var label      = isEmployer ? 'Employer' : 'Seeker';
+        return (
+            '<div class="d-flex align-items-center mb-3 pb-3 border-bottom border-light">' +
+                '<div class="bg-primary-subtle rounded-circle p-2 me-3" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;">' +
+                    '<span class="material-symbols-outlined text-primary fs-5">person_check</span>' +
+                '</div>' +
+                '<div class="flex-grow-1">' +
+                    '<div class="d-flex justify-content-between">' +
+                        '<span class="fw-bold small" style="color:#1B3E9C;">' + tag + '</span>' +
+                        '<span class="extra-small text-muted">' + relativeTime(item.updatedAt) + '</span>' +
+                    '</div>' +
+                    '<p class="mb-0 small text-muted">' + item.name + ' submitted ID &amp; clearance</p>' +
+                    '<small class="extra-small fw-bold text-secondary">Type: ' + label + '</small>' +
+                '</div>' +
+            '</div>'
+        );
+    }
 
-        if (!isFullModal) {
-            return `<tr>
-                <td><span class="badge ${badgeClass} rounded-pill extra-small">${item.status}</span></td>
-                <td class="small fw-bold">${item.name}</td>
-                <td><a href="${targetUrl}" class="btn btn-sm btn-primary rounded-pill extra-small">Review</a></td>
-            </tr>`;
+    function renderFeed(items) {
+        var feed      = document.getElementById('activity-feed');
+        var modalFeed = document.getElementById('modal-activity-feed');
+        if (!feed) return;
+
+        if (items.length === 0) {
+            var empty = '<p class="text-muted small text-center py-3">No pending verifications.</p>';
+            feed.innerHTML = empty;
+            if (modalFeed) modalFeed.innerHTML = empty;
+            return;
         }
-        return `<tr>
-            <td><span class="badge ${badgeClass} rounded-pill">${item.status}</span></td>
-            <td><div class="fw-bold small">${item.name}</div><div class="extra-small text-muted">${item.location}</div></td>
-            <td class="small text-muted">${item.role}</td>
-            <td class="small text-muted">${item.date}</td>
-            <td><a href="${targetUrl}" class="btn btn-sm btn-outline-primary rounded-pill extra-small px-3">Full Review</a></td>
-        </tr>`;
+
+        feed.innerHTML      = items.slice(0, 3).map(feedItemHtml).join('');
+        if (modalFeed) modalFeed.innerHTML = items.map(feedItemHtml).join('');
     }
 
-    // 4. Init Rendering
-    const feedContainer = document.getElementById('activity-feed');
-    const modalFeedContainer = document.getElementById('modal-activity-feed');
-    const queueBody = document.getElementById('queue-body');
-    const modalQueueBody = document.getElementById('modal-queue-body');
+    // ── Verification Queue ───────────────────────────────────────────────────
+    function queueRowHtml(item, isModal) {
+        var isEmployer = item.userType === 'employer';
+        var targetUrl  = isEmployer
+            ? (window.adminRoutes ? window.adminRoutes.employers : '#')
+            : (window.adminRoutes ? window.adminRoutes.seekers   : '#');
 
-    if (feedContainer) dummyData.feed.slice(0, 3).forEach(item => feedContainer.innerHTML += createActivityHTML(item));
-    if (modalFeedContainer) dummyData.feed.forEach(item => modalFeedContainer.innerHTML += createActivityHTML(item));
-    if (queueBody) dummyData.queue.slice(0, 3).forEach(item => queueBody.innerHTML += createQueueRow(item, false));
-    if (modalQueueBody) dummyData.queue.forEach(item => modalQueueBody.innerHTML += createQueueRow(item, true));
-    
-    // Call the function from notifications.js
+        if (!isModal) {
+            return (
+                '<tr>' +
+                    '<td><span class="badge bg-warning-subtle text-warning rounded-pill extra-small">Pending</span></td>' +
+                    '<td class="small fw-bold">' + item.name + '</td>' +
+                    '<td><a href="' + targetUrl + '" class="btn btn-sm btn-primary rounded-pill extra-small">Review</a></td>' +
+                '</tr>'
+            );
+        }
+
+        var label = isEmployer ? 'Employer' : 'Seeker';
+        var date  = item.updatedAt
+            ? new Date(item.updatedAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })
+            : '—';
+        return (
+            '<tr>' +
+                '<td><span class="badge bg-warning-subtle text-warning rounded-pill">Pending</span></td>' +
+                '<td class="fw-bold small">' + item.name + '</td>' +
+                '<td class="small text-muted">' + label + '</td>' +
+                '<td class="small text-muted">' + date + '</td>' +
+                '<td><a href="' + targetUrl + '" class="btn btn-sm btn-outline-primary rounded-pill extra-small px-3">Full Review</a></td>' +
+            '</tr>'
+        );
+    }
+
+    function renderQueue(items) {
+        var queueBody  = document.getElementById('queue-body');
+        var modalQueue = document.getElementById('modal-queue-body');
+        if (!queueBody) return;
+
+        if (items.length === 0) {
+            queueBody.innerHTML  = '<tr><td colspan="3" class="text-center text-muted small py-3">No pending verifications.</td></tr>';
+            if (modalQueue) modalQueue.innerHTML = '<tr><td colspan="5" class="text-center text-muted small py-3">No pending verifications.</td></tr>';
+            return;
+        }
+
+        queueBody.innerHTML = items.slice(0, 3).map(function (i) { return queueRowHtml(i, false); }).join('');
+        if (modalQueue) modalQueue.innerHTML = items.map(function (i) { return queueRowHtml(i, true); }).join('');
+    }
+
     if (typeof renderNotifications === 'function') {
         renderNotifications();
     }

@@ -44,4 +44,10 @@ class UserController extends Controller
 
         return view('admin.users', compact('users'));
     }
+
+    public function photo(string $uid)
+    {
+        $base64 = app(ApiService::class)->post('/profile-photo', ['uid' => $uid])['data'] ?? null;
+        return response()->json(['data' => $base64]);
+    }
 }
